@@ -5,14 +5,24 @@ from src.schemas.auth import UserCreate, UserResponse
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 
+from src.utils.passwords import passwords
 
-def register(user_data: UserCreate, db: Session) -> UserResponse:
+
+async def register(user_data: UserCreate, db: Session) -> UserResponse:
     try:
-        # Create user and profile instances
+
+        if user_data.password != user_data.password_confirm:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Passwords don't match",
+            )
+
+        hashed_data = passwords.get_password_hash(user_data.password)
+
         new_user = User(
             email=user_data.email,
-            hashed_password=user_data.password,
-            password_salt=user_data.password
+            hashed_password=hashed_data[0],
+            password_salt=hashed_data[1]
         )
 
         profile = UserProfile(
@@ -23,7 +33,6 @@ def register(user_data: UserCreate, db: Session) -> UserResponse:
 
         new_user.profile = profile
 
-        # Execute database operations
         db.add(new_user)
         db.commit()
         
@@ -35,14 +44,11 @@ def register(user_data: UserCreate, db: Session) -> UserResponse:
             phone_number=profile.phone_number
         )
 
-        print(response)
-
-        # Create response after successful commit
         return response
 
     except IntegrityError:
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="User with that email already exists"
+            detail="A user with that email already exists"
         )

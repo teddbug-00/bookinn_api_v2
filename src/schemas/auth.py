@@ -20,14 +20,19 @@ class UserCreate(BaseModel):
 
 class UserResponse(BaseModel):
     user_id: str
-    email: str
+    email: EmailStr
     name: str
     date_of_birth: str
     phone_number: str
     profile_picture_url: Optional[str] = None
 
 
-class TokenResponse(BaseModel):
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str
+
+
+class LoginResponse(BaseModel):
     access_token: str
     refresh_token: str
     token_type: str
@@ -53,8 +58,8 @@ class PasswordResetConfirm(BaseModel):
     password: str
     password_confirm: str
 
-    @field_validator("password_confirm")
-    def passwords_match(cls, v, values):
-        if "password" in values and v != values["password"]:
-            raise ValueError("Passwords don't match")
-        return v
+    # @field_validator("password_confirm")
+    # def passwords_match(cls, v, values):
+    #     if "password" in values and v != values["password"]:
+    #         raise ValueError("Passwords don't match")
+    #     return v

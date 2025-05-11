@@ -3,7 +3,7 @@ from src.api.auth.router import auth_router
 
 app = FastAPI()
 
-app.include_router(auth_router, prefix="/api", tags=["Authentication endpoints"])
+app.include_router(auth_router, prefix="/api/auth", tags=["Authentication endpoints"])
 
 @app.get("/")
 async def index():
