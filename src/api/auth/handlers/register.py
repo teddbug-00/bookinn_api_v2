@@ -20,15 +20,15 @@ async def register(user_data: UserCreate, db: Session) -> UserResponse:
         hashed_data = passwords.get_password_hash(user_data.password)
 
         new_user = User(
-            email=user_data.email,
-            hashed_password=hashed_data[0],
-            password_salt=hashed_data[1]
+            email = user_data.email,
+            hashed_password = hashed_data[0],
+            password_salt = hashed_data[1]
         )
 
         profile = UserProfile(
-            name=user_data.name,
-            date_of_birth=user_data.date_of_birth,
-            phone_number=user_data.phone_number
+            name = user_data.name,
+            date_of_birth = user_data.date_of_birth,
+            phone_number = user_data.phone_number
         )
 
         new_user.profile = profile
@@ -37,11 +37,11 @@ async def register(user_data: UserCreate, db: Session) -> UserResponse:
         db.commit()
         
         response = UserResponse(
-            user_id=str(new_user.id),
-            email=new_user.email,
-            name=profile.name,
-            date_of_birth=str(profile.date_of_birth),
-            phone_number=profile.phone_number
+            user_id = str(new_user.id),
+            email = new_user.email,
+            name = profile.name,
+            date_of_birth = str(profile.date_of_birth),
+            phone_number = profile.phone_number
         )
 
         return response
