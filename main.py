@@ -1,3 +1,5 @@
+import secrets
+
 from fastapi import FastAPI
 from src.api.auth.router import auth_router
 

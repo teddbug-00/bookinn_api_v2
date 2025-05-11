@@ -1,6 +1,7 @@
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
+from src.core.security import create_access_token, create_refresh_token
 from src.models import User
 from src.schemas.auth import LoginRequest, LoginResponse
 from sqlalchemy.exc import NoResultFound
@@ -8,7 +9,7 @@ from sqlalchemy.exc import NoResultFound
 from src.utils.passwords import passwords, verify_password
 
 
-async def login(user_credentials: LoginRequest, db: Session):
+async def login(user_credentials: LoginRequest, db: Session) -> LoginResponse:
 
     try:
         user = db.query(User).filter(User.email == user_credentials.email).first()
@@ -19,7 +20,15 @@ async def login(user_credentials: LoginRequest, db: Session):
                 detail="Incorrect email or password",
                 headers={"WWW-Authenticate": "Bearer"})
 
-        return {"message": "Login Successful"}
+        access_token = await create_access_token(str(user.id))
+        refresh_token = await create_refresh_token(str(user.id))
+
+        return LoginResponse(
+            access_token=access_token,
+            refresh_token=refresh_token,
+            token_type="bearer",
+            user_id=str(user.id)
+        )
 
     except NoResultFound:
         raise HTTPException(status_code=404, detail="Incorrect email or password")

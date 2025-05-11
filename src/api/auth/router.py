@@ -1,5 +1,3 @@
-from typing import Dict, Any
-
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from src.core.db import get_db
@@ -15,6 +13,6 @@ async def register_user(user_data: UserCreate, db: Session = Depends(get_db)) ->
     return await register(user_data, db)
 
 
-@auth_router.post("/login")
-async def login_user(user_credentials: LoginRequest, db: Session = Depends(get_db)):
+@auth_router.post("/login", response_model=LoginResponse)
+async def login_user(user_credentials: LoginRequest, db: Session = Depends(get_db)) -> LoginResponse:
     return await login(user_credentials, db)

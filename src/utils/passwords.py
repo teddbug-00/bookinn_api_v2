@@ -6,7 +6,6 @@ from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError, InvalidHash
 
 from src.core.config import settings
-from src.models import User
 
 
 @lru_cache
