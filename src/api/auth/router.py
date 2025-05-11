@@ -25,3 +25,10 @@ async def login_user(user_credentials: LoginRequest, db: Session = Depends(get_d
 async def login_for_swagger_ui(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)) -> Any:
     return await login_for_swagger(form_data, db)
 
+
+@auth_router.post("/logout")
+async def logout():
+    # TODO: Complete this code
+    pass
+
+

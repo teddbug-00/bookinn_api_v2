@@ -5,6 +5,7 @@ from uuid import UUID
 
 from src.models.property_listing import Amenities, ListingType
 
+
 class ListingBase(BaseModel):
     name: str
     listing_type: ListingType
@@ -40,17 +41,6 @@ class ListingCreateResponse(BaseModel):
     review_count: Optional[int] = 0
     is_bookmarked: Optional[bool] = False
 
-class ListingsListResponse(BaseModel):
-    id: UUID
-    name: str
-    price_per_night: Decimal
-    location: str
-    image_thumbnail: Optional[str] = None
-    latitude: Optional[Decimal] = None
-    longitude: Optional[Decimal] = None
-    avg_rating: Optional[Decimal] = None
-    review_count: Optional[int] = 0
-    is_bookmarked: Optional[bool] = False
 
-
-
+class ListingsListResponse(ListingCreateResponse):
+    pass
