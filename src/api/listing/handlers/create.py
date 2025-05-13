@@ -1,7 +1,7 @@
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
-from src.models.property_listing import PropertyListing
+from src.models.listing import PropertyListing
 from src.schemas.listing import ListingCreateRequest, ListingCreateResponse
 
 

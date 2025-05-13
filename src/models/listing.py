@@ -1,17 +1,16 @@
 import uuid
-import enum
 from sqlalchemy import UUID, String, DECIMAL, Integer, Text, DateTime, func, Boolean, ForeignKey, ARRAY, Enum
 from sqlalchemy.orm import mapped_column, relationship
 
 from .base import Base
 
-class ListingType(str, enum.Enum):
+class ListingType(str, Enum):
     APARTMENT = "APARTMENT"
     GUESTHOUSE = "GUESTHOUSE"
     HOSTEL = "HOSTEL"
     HOTEL = "HOTEL"
 
-class Amenities(str, enum.Enum):
+class Amenities(str, Enum):
     INTERNET = "INTERNET"
     AC = "AC"
     SECURITY = "SECURITY"
@@ -19,7 +18,7 @@ class Amenities(str, enum.Enum):
 
 
 class PropertyListing(Base):
-    __tablename__ = "property_listings"
+    __tablename__ = "listings"
 
     id = mapped_column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
     owner_id = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
@@ -40,18 +39,18 @@ class PropertyListing(Base):
     updated_at = mapped_column(DateTime, server_default=func.now(), onupdate=func.now())
 
     # Relationships
-    owner = relationship("User", back_populates="property_listings")
-    images = relationship("ListingImage", back_populates="property_listing", cascade="all, delete-orphan")
+    owner = relationship("User", back_populates="listings")
+    images = relationship("ListingImage", back_populates="listing", cascade="all, delete-orphan")
 
 
 class ListingImage(Base):
     __tablename__ = "listing_images"
 
     id = mapped_column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
-    property_listing_id = mapped_column(UUID(as_uuid=True), ForeignKey("property_listings.id"), nullable=False)
+    listing_id = mapped_column(UUID(as_uuid=True), ForeignKey("listings.id"), nullable=False)
     cloudinary_public_id = mapped_column(String(255))
     image_url = mapped_column(String(255))
     uploaded_at = mapped_column(DateTime, server_default=func.now())
 
     # Relationship
-    property_listing = relationship("PropertyListing", back_populates="images")
+    listing = relationship("PropertyListing", back_populates="images")

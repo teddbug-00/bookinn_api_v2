@@ -17,4 +17,4 @@ class User(Base):
     updated_at = mapped_column(DateTime, server_default=func.now(), onupdate=func.now())
 
     profile = relationship("UserProfile", back_populates="user", uselist=False)
-    property_listings = relationship("PropertyListing", back_populates="owner")
+    listings = relationship("PropertyListing", back_populates="owner")

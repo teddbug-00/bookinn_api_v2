@@ -15,6 +15,7 @@ async def edit_user_profile(user_id: str, update_data: Optional[UserProfileUpdat
         if len(update_dict) > 0:
             try:
                 curr_profile = db.get(UserProfile, user_id)
+     
                 if not curr_profile:
                     raise HTTPException(
                         status_code=status.HTTP_404_NOT_FOUND, 

@@ -1,4 +1,3 @@
-import uuid
 from sqlalchemy import UUID
 from .base import Base
 from sqlalchemy.orm import mapped_column

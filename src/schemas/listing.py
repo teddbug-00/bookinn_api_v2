@@ -1,15 +1,27 @@
 from decimal import Decimal
 from typing import List, Optional
+from enum import Enum
 from pydantic import BaseModel
 from uuid import UUID
 
-from src.models.property_listing import Amenities, ListingType
+class ListingType(str, Enum):
+    APARTMENT = "APARTMENT"
+    GUESTHOUSE = "GUESTHOUSE"
+    HOSTEL = "HOSTEL"
+    HOTEL = "HOTEL"
+
+
+class Amenities(str, Enum):
+    INTERNET = "INTERNET"
+    AC = "AC"
+    SECURITY = "SECURITY"
+    POWER = "POWER"
 
 
 class ListingBase(BaseModel):
     name: str
     listing_type: ListingType
-    amenities: List[Amenities] = []
+    amenities: List[Amenities]
     location: str
     google_maps_address: str
     price_per_night: Decimal
@@ -25,6 +37,22 @@ class PropertyImageResponse(BaseModel):
 
 
 class ListingCreateRequest(ListingBase):
+    pass
+
+class ListingUpdateRequest(BaseModel):
+    name: Optional[str] = None
+    listing_type: Optional[ListingType] = None
+    amenities: Optional[List[Amenities]] = None
+    location: Optional[str] = None
+    google_maps_address: Optional[str] = None
+    price_per_night: Optional[Decimal] = None
+    room_count: Optional[int] = None
+    bathrooms_count: Optional[int] = None
+    listing_area: Optional[int] = None
+    description: Optional[str] = None
+
+
+class ListingUpdateResponse(ListingBase):
     pass
 
 
