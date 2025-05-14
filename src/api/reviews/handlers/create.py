@@ -12,7 +12,7 @@ async def _update_ratings_data(listing, db: Session, new_rating: float):
     try:
 
         curr_total_ratings = float(
-            (0 if listing.average_rating is None else listing.average_rating) * listing.total_reviews)
+            (0 if listing.average_rating is None else listing.average_rating) * listing.total_reviews).__round__(1)
 
         listing.total_reviews += 1
 

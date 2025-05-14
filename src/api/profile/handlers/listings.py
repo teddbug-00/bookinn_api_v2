@@ -22,8 +22,8 @@ async def get_user_listings(user_id: str, db: Session) -> List[ListingsListRespo
                 bathrooms_count=listing.bathrooms_count,
                 listing_area=listing.listing_area,
                 image_thumbnail=listing.images[0] if listing.images else None,
-                avg_rating=None,  # Add rating logic later
-                review_count=0,   # Add review count logic later
+                avg_rating=0 if listing.average_rating is None else listing.average_rating,
+                review_count=listing.total_reviews,
                 is_bookmarked=False  # Add bookmark logic later
             )
             for listing in listings
