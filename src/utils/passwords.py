@@ -38,13 +38,13 @@ class Passwords:
     @staticmethod
     def get_password_hash(raw_password: str) -> tuple:
         
-        salt = secrets.token_hex(16)
+        password_salt = secrets.token_hex(16)
 
-        peppered_password = hashlib.sha256((raw_password + settings.PASSWORD_PEPPER + salt).encode()).hexdigest()
+        peppered_password = hashlib.sha256((raw_password + settings.PASSWORD_PEPPER + password_salt).encode()).hexdigest()
 
         hashed_password = password_hasher.hash(peppered_password)
 
-        return hashed_password, salt
+        return hashed_password, password_salt
 
 
 passwords = Passwords()

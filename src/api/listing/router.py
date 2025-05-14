@@ -22,8 +22,8 @@ async def add_listing(
 @listing_router.patch("/{listing_id}/update", response_model=ListingUpdateResponse, status_code=status.HTTP_200_OK)
 async def edit_listing(
     listing_id: str,
-    listing_data: ListingUpdateRequest, 
+    update_data: ListingUpdateRequest, 
     user_id: str = Depends(get_current_user_id), 
     db: Session = Depends(get_db)) -> ListingUpdateResponse:
 
-    return await update_listing(listing_id, listing_data, user_id, db)
+    return await update_listing(listing_id, update_data, user_id, db)

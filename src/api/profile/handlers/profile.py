@@ -1,4 +1,5 @@
 from typing import Any, Coroutine
+from uuid import UUID
 
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
@@ -8,7 +9,7 @@ from src.models import User
 from src.schemas.user_profile import UserProfile
 
 
-async def get_profile(user_id: str, db: Session) -> UserProfile:
+async def get_profile(user_id: UUID, db: Session) -> UserProfile:
     try:
         user = db.get(User, user_id)
 

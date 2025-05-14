@@ -1,5 +1,6 @@
 from datetime import date
 from typing import Optional
+from uuid import UUID
 from pydantic import BaseModel
 from src.schemas.auth import UserResponse
 
@@ -14,7 +15,7 @@ class UserProfileUpdateRequest(BaseModel):
 
 
 class UserProfileUpdateResponse(BaseModel):
-    user_id: str
+    user_id: UUID
     name: str
     date_of_birth: str
     phone_number: str

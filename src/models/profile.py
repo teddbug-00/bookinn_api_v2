@@ -15,6 +15,7 @@ class UserProfile(Base):
     cloudinary_public_id = mapped_column(String(255), nullable=True)
 
     user = relationship("User", back_populates="profile")
+    reviews = relationship("Review", back_populates="reviewer")
 
     def __repr__(self):
         return f"<UserProfile(user_id={self.user_id}, name={self.name})>"

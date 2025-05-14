@@ -28,7 +28,7 @@ async def login_for_swagger_ui(form_data: OAuth2PasswordRequestForm = Depends(),
 
 @auth_router.post("/logout")
 async def logout():
-    # TODO: Complete this code
+    # TODO: Complete this later
     pass
 
 

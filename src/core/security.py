@@ -1,5 +1,6 @@
 from datetime import timedelta, datetime
 from typing import Optional
+from uuid import UUID
 
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
@@ -18,11 +19,11 @@ async def _create_token(user_id: str, token_type: str, expires_delta: Optional[t
         "password_reset": timedelta(minutes=settings.PASSWORD_RESET_TOKEN_EXPIRE_MINUTES)
     }
 
-    expire = datetime.now() + (expires_delta or default_expires[token_type])
+    expires_on = datetime.now() + (expires_delta or default_expires[token_type])
 
     payload = {
         "sub": user_id,
-        "exp": expire,
+        "exp": expires_on,
         "type": token_type
     }
 
@@ -36,7 +37,7 @@ async def create_access_token(user_id: str, expires_delta: Optional[timedelta] =
 async def create_refresh_token(user_id:str, expires_delta: Optional[timedelta] = None) -> str:
     return await _create_token(user_id, "refresh", expires_delta)
 
-async def _decode_token(token: str, add_auth_header: bool =True) -> str:
+async def _decode_token(token: str, add_auth_header: bool =True) -> UUID:
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
         user_id = payload.get("sub")
@@ -49,7 +50,7 @@ async def _decode_token(token: str, add_auth_header: bool =True) -> str:
                 headers=headers
             )
 
-        return user_id
+        return UUID(user_id)
 
     except JWEInvalidAuth:
         headers = {"WWW-Authenticate": "Bearer"} if add_auth_header else {}
@@ -59,5 +60,5 @@ async def _decode_token(token: str, add_auth_header: bool =True) -> str:
             headers=headers,
         )
 
-async def get_current_user_id(token: str = Depends(oauth2_scheme)) -> str:
+async def get_current_user_id(token: str = Depends(oauth2_scheme)) -> UUID:
     return await _decode_token(token, add_auth_header=True)

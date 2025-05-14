@@ -20,7 +20,7 @@ class Amenities(str, Enum):
 class PropertyListing(Base):
     __tablename__ = "listings"
 
-    id = mapped_column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
+    id = mapped_column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True, index=True)
     owner_id = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     name = mapped_column(String(255), index=True)
     listing_type = mapped_column(Enum(ListingType.APARTMENT, ListingType.GUESTHOUSE, ListingType.HOSTEL, ListingType.HOTEL, name="listing_type_enum"), index=True)
@@ -41,6 +41,7 @@ class PropertyListing(Base):
     # Relationships
     owner = relationship("User", back_populates="listings")
     images = relationship("ListingImage", back_populates="listing", cascade="all, delete-orphan")
+    reviews = relationship("Review", back_populates="listing", cascade="all, delete-orphan")
 
 
 class ListingImage(Base):

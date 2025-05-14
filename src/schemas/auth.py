@@ -1,5 +1,6 @@
 from datetime import date
 from typing import Optional
+from uuid import UUID
 from pydantic import BaseModel, EmailStr, field_validator
 
 
@@ -19,7 +20,7 @@ class UserCreate(BaseModel):
 
 
 class UserResponse(BaseModel):
-    user_id: str
+    user_id: UUID
     email: EmailStr
     name: str
     date_of_birth: str
@@ -36,7 +37,7 @@ class LoginResponse(BaseModel):
     access_token: str
     refresh_token: str
     token_type: str
-    user_id: str
+    user_id: UUID
 
 
 class TokenRefreshResponse(BaseModel):
