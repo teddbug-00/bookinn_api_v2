@@ -14,7 +14,7 @@ async def login(user_credentials: LoginRequest, db: Session) -> LoginResponse:
 
     try:
 
-        user = db.query(User).filter(User.email == user_credentials.email).first()
+        user = db.query(User).filter(user_credentials.email == User.email).first()
 
         if not user or not verify_password(user_credentials.password, user.password_salt, user.hashed_password):
             raise HTTPException(
@@ -29,7 +29,7 @@ async def login(user_credentials: LoginRequest, db: Session) -> LoginResponse:
             access_token=access_token,
             refresh_token=refresh_token,
             token_type="bearer",
-            user_id=str(user.id)
+            user_id=user.id
         )
 
     except NoResultFound:
@@ -39,7 +39,7 @@ async def login(user_credentials: LoginRequest, db: Session) -> LoginResponse:
 
 async def login_for_swagger(form_data: OAuth2PasswordRequestForm, db: Session) -> LoginResponse:
     try:
-        user = db.query(User).filter(User.email == form_data.username).first()
+        user = db.query(User).filter(form_data.username == User.email).first()
 
         if not user or not verify_password(form_data.password, user.password_salt, user.hashed_password):
             raise HTTPException(
@@ -54,7 +54,7 @@ async def login_for_swagger(form_data: OAuth2PasswordRequestForm, db: Session) -
             access_token=access_token,
             refresh_token=refresh_token,
             token_type="bearer",
-            user_id=str(user.id)
+            user_id=user.id
         )
 
     except NoResultFound:

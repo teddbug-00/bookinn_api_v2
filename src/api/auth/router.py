@@ -3,16 +3,16 @@ from typing import Any
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from src.core.db import get_db
-from src.schemas.auth import UserCreate, UserResponse, LoginResponse, LoginRequest
-from .handlers.register import register
-from .handlers.login import login, login_for_swagger
 
+from src.core.db import get_db
+from src.schemas.auth import UserCreateRequest, UserCreateResponse, LoginResponse, LoginRequest
+from .handlers.login import login, login_for_swagger
+from .handlers.register import register
 
 auth_router = APIRouter()
 
-@auth_router.post("/register", response_model=UserResponse)
-async def register_user(user_data: UserCreate, db: Session = Depends(get_db)) -> UserResponse:
+@auth_router.post("/register", response_model=UserCreateResponse)
+async def register_user(user_data: UserCreateRequest, db: Session = Depends(get_db)) -> UserCreateResponse:
     return await register(user_data, db)
 
 

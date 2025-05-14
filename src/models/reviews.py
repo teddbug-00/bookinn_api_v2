@@ -1,8 +1,10 @@
 import uuid
+
 from sqlalchemy import UUID, DateTime, ForeignKey, Text, func, DECIMAL
+from sqlalchemy.orm import mapped_column, relationship
+
 from .base import Base
 
-from sqlalchemy.orm import mapped_column, relationship
 
 class Review(Base):
     __tablename__ = 'reviews'

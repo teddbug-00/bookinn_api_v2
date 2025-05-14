@@ -1,14 +1,14 @@
 from fastapi import HTTPException, status
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session
+
 from src.models.profile import UserProfile
 from src.models.user import User
-from src.schemas.auth import UserCreate, UserResponse
-from sqlalchemy.orm import Session
-from sqlalchemy.exc import IntegrityError
-
+from src.schemas.auth import UserCreateRequest, UserCreateResponse
 from src.utils.passwords import passwords
 
 
-async def register(user_data: UserCreate, db: Session) -> UserResponse:
+async def register(user_data: UserCreateRequest, db: Session) -> UserCreateResponse:
     try:
 
         if user_data.password != user_data.password_confirm:
@@ -19,7 +19,7 @@ async def register(user_data: UserCreate, db: Session) -> UserResponse:
 
         hashed_data = passwords.get_password_hash(user_data.password)
 
-        new_user = User(
+        user = User(
             email = user_data.email,
             hashed_password = hashed_data[0],
             password_salt = hashed_data[1]
@@ -31,23 +31,21 @@ async def register(user_data: UserCreate, db: Session) -> UserResponse:
             phone_number = user_data.phone_number
         )
 
-        new_user.profile = profile
+        user.profile = profile
 
-        db.add(new_user)
+        db.add(user)
         db.commit()
-        
-        response = UserResponse(
-            user_id = str(new_user.id),
-            email = new_user.email,
+
+        return UserCreateResponse(
+            user_id = user.id,
+            email = user.email,
             name = profile.name,
             date_of_birth = str(profile.date_of_birth),
             phone_number = profile.phone_number
         )
 
-        return response
-
     except IntegrityError:
-        db.rollback()
+        await db.rollback()
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="A user with that email already exists"

@@ -17,7 +17,7 @@ async def update_listing(listing_id: str, update_data: ListingUpdateRequest, use
 
     try:
 
-        curr_listing_data = db.query(PropertyListing).filter(PropertyListing.owner_id == user_id and PropertyListing.id == listing_id).first()
+        curr_listing_data = db.query(PropertyListing).filter(user_id == PropertyListing.owner_id and listing_id == PropertyListing.id).first()
         
         for field, value in update_dict.items():
             if hasattr(curr_listing_data, field):

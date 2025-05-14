@@ -72,3 +72,8 @@ class ListingCreateResponse(BaseModel):
 
 class ListingsListResponse(ListingCreateResponse):
     pass
+
+
+class ListingDetailsResponse(ListingBase):
+    # TODO: Complete this later
+    pass

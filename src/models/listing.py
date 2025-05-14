@@ -34,6 +34,8 @@ class PropertyListing(Base):
     listing_area = mapped_column(Integer, default=0)
     bathrooms_count = mapped_column(Integer, default=0)
     description = mapped_column(Text)
+    total_reviews = mapped_column(Integer, default=0)
+    average_rating = mapped_column(DECIMAL, default=0)
     is_available = mapped_column(Boolean, default=True, index=True)
     created_at = mapped_column(DateTime, server_default=func.now())
     updated_at = mapped_column(DateTime, server_default=func.now(), onupdate=func.now())

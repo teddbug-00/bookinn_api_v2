@@ -1,12 +1,13 @@
-from pickle import NONE
 from typing import Optional
-from sqlalchemy.orm import Session
+
 from fastapi import HTTPException, status
+from sqlalchemy.orm import Session
 
 from src.models.profile import UserProfile
-from src.schemas.user_profile import UserProfileUpdateRequest
+from src.schemas.profiles import UserProfileUpdateRequest, UserProfileUpdateResponse
 
-async def edit_user_profile(user_id: str, update_data: Optional[UserProfileUpdateRequest], db: Session):
+
+async def edit_user_profile(user_id: str, update_data: Optional[UserProfileUpdateRequest], db: Session) -> UserProfileUpdateResponse:
 
     if update_data is not None:
 
@@ -29,7 +30,13 @@ async def edit_user_profile(user_id: str, update_data: Optional[UserProfileUpdat
                 db.commit()
                 db.refresh(curr_profile)
                 
-                return curr_profile
+                return UserProfileUpdateResponse(
+                    user_id=curr_profile.user_id,
+                    name=curr_profile.name,
+                    date_of_birth=curr_profile.date_of_birth,
+                    phone_number=curr_profile.phone_number,
+                    profile_picture_url=curr_profile.profile_picture_url,
+                )
 
             except Exception as e:
                 db.rollback()

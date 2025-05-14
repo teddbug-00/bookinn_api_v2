@@ -1,20 +1,19 @@
-from typing import Any, Coroutine
 from uuid import UUID
 
 from fastapi import HTTPException, status
-from sqlalchemy.orm import Session
 from sqlalchemy.exc import NoResultFound
+from sqlalchemy.orm import Session
 
 from src.models import User
-from src.schemas.user_profile import UserProfile
+from src.schemas.profiles import UserCreateProfile
 
 
-async def get_profile(user_id: UUID, db: Session) -> UserProfile:
+async def get_profile(user_id: UUID, db: Session) -> UserCreateProfile:
     try:
         user = db.get(User, user_id)
 
         if user is not None:
-            return UserProfile(
+            return UserCreateProfile(
                 user_id=user_id,
                 email=user.email,
                 name=user.profile.name,

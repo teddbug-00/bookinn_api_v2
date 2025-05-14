@@ -7,7 +7,7 @@ from src.schemas.listing import ListingsListResponse
 
 async def get_user_listings(user_id: str, db: Session) -> List[ListingsListResponse]:
     try:
-        listings = db.query(PropertyListing).filter(PropertyListing.owner_id == user_id).all()
+        listings = db.query(PropertyListing).filter(user_id == PropertyListing.owner_id).all()
         
         if not listings:
             return []

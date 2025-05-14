@@ -9,6 +9,9 @@ class Settings(BaseSettings):
     # Database url
     DATABASE_URL: str = os.getenv("DATABASE_URL", "")
 
+    # Debug
+    DEBUG: bool = os.getenv("DEBUG", False)
+
     # Password pepper
     PASSWORD_PEPPER: str = os.getenv("PASSWORD_PEPPER", "")
 
@@ -19,6 +22,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 30)
     REFRESH_TOKEN_EXPIRE_MINUTES: int = os.getenv("REFRESH_TOKEN_EXPIRE_MINUTES", 30)
     PASSWORD_RESET_TOKEN_EXPIRE_MINUTES: int = os.getenv("PASSWORD_RESET_TOKEN_EXPIRE_MINUTES", 30)
+
 
 
 

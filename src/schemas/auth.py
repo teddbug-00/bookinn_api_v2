@@ -1,10 +1,11 @@
 from datetime import date
 from typing import Optional
 from uuid import UUID
-from pydantic import BaseModel, EmailStr, field_validator
+
+from pydantic import BaseModel, EmailStr
 
 
-class UserCreate(BaseModel):
+class UserCreateRequest(BaseModel):
     email: EmailStr
     password: str
     password_confirm: str
@@ -12,14 +13,8 @@ class UserCreate(BaseModel):
     date_of_birth: date
     phone_number: str
 
-    # @field_validator("password_confirm")
-    # def passwords_match(cls, v, values):
-    #     if "password" in values and v != values["password"]:
-    #         raise ValueError("Passwords don't match")
-    #     return v
 
-
-class UserResponse(BaseModel):
+class UserCreateResponse(BaseModel):
     user_id: UUID
     email: EmailStr
     name: str
@@ -58,9 +53,3 @@ class PasswordResetRequest(BaseModel):
 class PasswordResetConfirm(BaseModel):
     password: str
     password_confirm: str
-
-    # @field_validator("password_confirm")
-    # def passwords_match(cls, v, values):
-    #     if "password" in values and v != values["password"]:
-    #         raise ValueError("Passwords don't match")
-    #     return v
