@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session 
 
 from src.api.listing.handlers.create import create_listing
+from src.api.listing.handlers.detail import fetch_full_listing_info
 from src.api.listing.handlers.list import fetch_listings
 from src.api.listing.handlers.reviews import fetch_reviews
 from src.api.listing.handlers.update import update_listing
@@ -20,6 +21,11 @@ listing_router = APIRouter()
 @listing_router.get("", response_model=List[ListingsListResponse], status_code=status.HTTP_200_OK)
 async def get_listings(db: Session = Depends(get_db)) -> List[ListingsListResponse]:
     return await fetch_listings(db)
+
+
+@listing_router.get("/{listing_id}")
+async def get_listing_details(listing_id: str, db: Session = Depends(get_db)):
+    return await fetch_full_listing_info(listing_id, db)
 
 
 @listing_router.post("/add", response_model=ListingCreateResponse, status_code=status.HTTP_201_CREATED)

@@ -4,6 +4,7 @@ from enum import Enum
 from pydantic import BaseModel
 from uuid import UUID
 
+
 class ListingType(str, Enum):
     APARTMENT = "APARTMENT"
     GUESTHOUSE = "GUESTHOUSE"
@@ -31,7 +32,7 @@ class ListingBase(BaseModel):
     description: str
 
 
-class PropertyImageResponse(BaseModel):
+class ListingImageResponse(BaseModel):
     id: UUID
     image_url: str
 
@@ -64,7 +65,7 @@ class ListingCreateResponse(BaseModel):
     room_count: int
     bathrooms_count: int
     listing_area: int
-    image_thumbnail: PropertyImageResponse | None
+    image_thumbnail: ListingImageResponse | None
     avg_rating: Optional[Decimal] = None
     review_count: Optional[int] = 0
     is_bookmarked: Optional[bool] = False
@@ -74,6 +75,21 @@ class ListingsListResponse(ListingCreateResponse):
     pass
 
 
-class ListingDetailsResponse(ListingBase):
-    # TODO: Complete this later
-    pass
+class ListingDetailsResponse(BaseModel):
+    name: str
+    owner_id: str
+    owner_name: str
+    listing_type: ListingType
+    amenities: List[Amenities]
+    is_available: Optional[bool] = False
+    location: str
+    google_maps_address: str
+    price_per_night: Decimal
+    room_count: int
+    listing_area: float
+    bathrooms_count: int
+    images: List[ListingImageResponse]
+    average_rating: Decimal
+    review_count: int
+    is_bookmarked: Optional[bool] = False
+    description: str
