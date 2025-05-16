@@ -7,16 +7,17 @@ from src.schemas.review import ReviewCreateRequest
 
 
 async def _update_ratings_data(listing, db: Session, new_rating: float):
+
     assert listing is not None
 
     try:
 
         curr_total_ratings = float(
-            (0 if listing.average_rating is None else listing.average_rating) * listing.total_reviews).__round__(1)
+            (0 if listing.average_rating is None else listing.average_rating) * listing.total_reviews)
 
         listing.total_reviews += 1
 
-        listing.average_rating = (curr_total_ratings + new_rating) / listing.total_reviews
+        listing.average_rating = float((curr_total_ratings + new_rating) / listing.total_reviews).__round__(1)
 
         db.add(listing)
         db.commit()

@@ -11,3 +11,7 @@ class ReviewCreateRequest(ReviewBase):
 class ReviewUpdateRequest(BaseModel):
     rating: Optional[float] = Field(default=None, ge=0, le=5, multiple_of=0.5)
     comment: Optional[str] = None
+
+class ReviewListResponse(ReviewBase):
+    reviewer_name: str
+    reviewer_profile_picture_url: Optional[str] = None
