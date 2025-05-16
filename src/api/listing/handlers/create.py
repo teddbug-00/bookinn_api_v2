@@ -5,7 +5,7 @@ from src.models.listing import PropertyListing
 from src.schemas.listing import ListingCreateRequest, ListingCreateResponse
 
 
-async def create_listing(listing_data: ListingCreateRequest, user_id: str, db: Session) -> ListingCreateResponse | None:
+async def create_listing(listing_data: ListingCreateRequest, user_id: str, db: Session) -> ListingCreateResponse:
     try:
         new_listing = PropertyListing(
             owner_id=user_id,
