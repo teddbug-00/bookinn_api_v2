@@ -18,3 +18,4 @@ class User(Base):
 
     profile = relationship("UserProfile", back_populates="user", uselist=False)
     listings = relationship("PropertyListing", back_populates="owner")
+    notifications = relationship("Notification", back_populates="receiver")

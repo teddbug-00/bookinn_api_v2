@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session 
 
 from src.api.listing.handlers.create import create_listing
+from src.api.listing.handlers.delete import remove_listing
 from src.api.listing.handlers.detail import fetch_full_listing_info
 from src.api.listing.handlers.list import fetch_listings
 from src.api.listing.handlers.reviews import fetch_reviews
@@ -52,3 +53,11 @@ async def edit_listing(
     db: Session = Depends(get_db)) -> ListingUpdateResponse:
 
     return await update_listing(listing_id, update_data, user_id, db)
+
+
+@listing_router.delete("/{listing_id}/delete", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_listing(
+        listing_id: str,
+        user_id: str = Depends(get_current_user_id),
+        db: Session = Depends(get_db)):
+    return await remove_listing(listing_id, user_id, db)
