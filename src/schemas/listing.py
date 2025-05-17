@@ -4,6 +4,8 @@ from enum import Enum
 from pydantic import BaseModel
 from uuid import UUID
 
+from src.schemas.review import ReviewListResponse
+
 
 class ListingType(str, Enum):
     APARTMENT = "APARTMENT"
@@ -91,5 +93,6 @@ class ListingDetailsResponse(BaseModel):
     images: List[ListingImageResponse]
     average_rating: Decimal
     review_count: int
+    reviews: List[ReviewListResponse]
     is_bookmarked: Optional[bool] = False
     description: str

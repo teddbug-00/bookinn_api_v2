@@ -3,13 +3,14 @@ from fastapi import HTTPException, status
 
 from src.models import PropertyListing
 from src.schemas.listing import ListingDetailsResponse, ListingImageResponse
+from src.schemas.review import ReviewListResponse
 
 
 async def fetch_full_listing_info(listing_id: str, db: Session) -> ListingDetailsResponse:
     try:
         listing = db.get(PropertyListing, listing_id)
 
-        # TODO: why does the except block take precedence over this?
+        # TODO: Check: why does the except block take precedence over this?
         if listing is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -33,16 +34,20 @@ async def fetch_full_listing_info(listing_id: str, db: Session) -> ListingDetail
                 ListingImageResponse(
                     id=image.id,
                     image_url=image.image_url,
-                )
-                for image in listing.images
+                ) for image in listing.images
             ] if listing.images else [],
             average_rating=listing.average_rating,
             review_count=listing.total_reviews,
+            reviews=[
+                ReviewListResponse(
+                    comment=review.comment,
+                    rating=review.rating,
+                    reviewer_name=review.reviewer.name,
+                    reviewer_profile_picture_url=review.reviewer.profile_picture_url
+                ) for review in listing.reviews[::4]
+            ] if listing.reviews else [],
             # TODO: Add is_bookmarked later
             description=listing.description
         )
     except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
-        )
+        raise e
