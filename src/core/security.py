@@ -9,7 +9,10 @@ from fastapi import status, HTTPException, Depends
 
 from src.core.config import settings
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
+
+api_version_str = f"/api/{settings.API_VERSION}"
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{api_version_str}/auth/token")
 
 async def _create_token(user_id: str, token_type: str, expires_delta: Optional[timedelta] = None) -> str:
 
@@ -37,6 +40,7 @@ async def create_access_token(user_id: str, expires_delta: Optional[timedelta] =
 async def create_refresh_token(user_id:str, expires_delta: Optional[timedelta] = None) -> str:
     return await _create_token(user_id, "refresh", expires_delta)
 
+
 async def _decode_token(token: str, add_auth_header: bool =True) -> UUID:
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
@@ -59,6 +63,7 @@ async def _decode_token(token: str, add_auth_header: bool =True) -> UUID:
             detail="Invalid authentication credentials",
             headers=headers,
         )
+
 
 async def get_current_user_id(token: str = Depends(oauth2_scheme)) -> UUID:
     return await _decode_token(token, add_auth_header=True)

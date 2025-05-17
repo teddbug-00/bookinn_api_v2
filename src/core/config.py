@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str = os.getenv("DATABASE_URL", "")
 
     # Debug
-    DEBUG: bool = os.getenv("DEBUG", False)
+    DEBUG: bool | str = os.getenv("DEBUG", False)
 
     # Password pepper
     PASSWORD_PEPPER: str = os.getenv("PASSWORD_PEPPER", "")
@@ -19,12 +19,15 @@ class Settings(BaseSettings):
     SECRET_KEY: str = os.getenv("SECRET_KEY", "")
 
     # JWT
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 30)
-    REFRESH_TOKEN_EXPIRE_MINUTES: int = os.getenv("REFRESH_TOKEN_EXPIRE_MINUTES", 30)
-    PASSWORD_RESET_TOKEN_EXPIRE_MINUTES: int = os.getenv("PASSWORD_RESET_TOKEN_EXPIRE_MINUTES", 30)
+    ACCESS_TOKEN_EXPIRE_MINUTES: int | str = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 30)
+    REFRESH_TOKEN_EXPIRE_MINUTES: int | str = os.getenv("REFRESH_TOKEN_EXPIRE_MINUTES", 30)
+    PASSWORD_RESET_TOKEN_EXPIRE_MINUTES: int | str = os.getenv("PASSWORD_RESET_TOKEN_EXPIRE_MINUTES", 30)
+
+    # API Version
+    API_VERSION: str = os.getenv("API_VERSION", "")
 
 
 
 
-# A one time importable instance to avoid excess initialization
+# A one time importable instance
 settings = Settings()
