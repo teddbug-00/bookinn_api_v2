@@ -28,7 +28,9 @@ async def login_for_swagger_ui(form_data: OAuth2PasswordRequestForm = Depends(),
 
 @auth_router.post("/logout")
 async def logout():
-    # TODO: Complete this later
+    # TODO: Complete this later.
+    # Implementation logic:
+    # Revoke access and refresh tokens and store revoked tokens in a redis cache
     pass
 
 

@@ -27,7 +27,7 @@ class ListingBase(BaseModel):
     amenities: List[Amenities]
     location: str
     google_maps_address: str
-    price_per_night: Decimal
+    price_per_night: float
     room_count: int
     bathrooms_count: int
     listing_area: int
@@ -48,7 +48,7 @@ class ListingUpdateRequest(BaseModel):
     amenities: Optional[List[Amenities]] = None
     location: Optional[str] = None
     google_maps_address: Optional[str] = None
-    price_per_night: Optional[Decimal] = None
+    price_per_night: Optional[float] = None
     room_count: Optional[int] = None
     bathrooms_count: Optional[int] = None
     listing_area: Optional[int] = None
@@ -63,12 +63,12 @@ class ListingCreateResponse(BaseModel):
     id: UUID
     name: str
     location: str
-    price_per_night: Decimal
+    price_per_night: float
     room_count: int
     bathrooms_count: int
     listing_area: int
     image_thumbnail: ListingImageResponse | None
-    avg_rating: Optional[Decimal] = None
+    avg_rating: Optional[float] = None
     review_count: Optional[int] = 0
     is_bookmarked: Optional[bool] = False
 
@@ -86,12 +86,12 @@ class ListingDetailsResponse(BaseModel):
     is_available: Optional[bool] = False
     location: str
     google_maps_address: str
-    price_per_night: Decimal
+    price_per_night: float
     room_count: int
     listing_area: float
     bathrooms_count: int
     images: List[ListingImageResponse]
-    average_rating: Decimal
+    average_rating: float
     review_count: int
     reviews: List[ReviewListResponse]
     is_bookmarked: Optional[bool] = False

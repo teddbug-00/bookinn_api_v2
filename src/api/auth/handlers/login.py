@@ -32,8 +32,8 @@ async def login(user_credentials: LoginRequest, db: Session) -> LoginResponse:
             user_id=user.id
         )
 
-    except NoResultFound:
-        raise HTTPException(status_code=404, detail="Incorrect email or password")
+    except Exception as e:
+        raise e
 
 
 

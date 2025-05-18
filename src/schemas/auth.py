@@ -29,10 +29,10 @@ class LoginRequest(BaseModel):
 
 
 class LoginResponse(BaseModel):
+    user_id: UUID
     access_token: str
     refresh_token: str
     token_type: str
-    user_id: UUID
 
 
 class TokenRefreshResponse(BaseModel):
