@@ -1,6 +1,6 @@
 from typing import List, Optional
 from uuid import UUID
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, File, UploadFile, status
 from sqlalchemy.orm import Session
 
 from src.api.profile.handlers.bookmarks import fetch_user_bookmarks
@@ -26,8 +26,11 @@ async def get_user_profile(user_id: UUID = Depends(get_current_user_id), db: Ses
 
 
 @user_profile_router.post("/profile/image", status_code=status.HTTP_200_OK)
-async def add_profile_picture(user_id: str = Depends(get_current_user_id), db: Session = Depends(get_db)):
-    return await set_profile_picture(user_id, db)
+async def add_profile_picture(
+    user_id: str = Depends(get_current_user_id), 
+    db: Session = Depends(get_db),
+    image: UploadFile = File(...)):
+    return await set_profile_picture(user_id, image, db)
 
 
 @user_profile_router.get("/listings", status_code=status.HTTP_200_OK, response_model=List[ListingsListResponse])
