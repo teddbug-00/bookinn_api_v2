@@ -12,7 +12,7 @@ from src.api.listing.handlers.update import update_listing
 from src.api.listing.handlers.add_bookmark import add_bookmark
 from src.core.db import get_db
 from src.core.security import get_current_user_id
-from src.schemas.listing import ListingCreateRequest, ListingCreateResponse, ListingUpdateRequest, \
+from src.schemas.listing import ListingCreateRequest, ListingCreateResponse, ListingDetailsResponse, ListingUpdateRequest, \
     ListingUpdateResponse, ListingsListResponse
 from src.schemas.review import ReviewListResponse
 
@@ -22,12 +22,12 @@ listing_router = APIRouter()
 
 
 @listing_router.get("", response_model=List[ListingsListResponse], status_code=status.HTTP_200_OK)
-async def get_listings(db: Session = Depends(get_db)) -> List[ListingsListResponse]:
-    return await fetch_listings(db)
+async def get_listings(user_id: str = Depends(get_current_user_id), db: Session = Depends(get_db)) -> List[ListingsListResponse]:
+    return await fetch_listings(user_id, db)
 
 
-@listing_router.get("/{listing_id}")
-async def get_listing_details(listing_id: str, db: Session = Depends(get_db)):
+@listing_router.get("/{listing_id}", status_code=status.HTTP_200_OK, response_model=ListingDetailsResponse)
+async def get_listing_details(listing_id: str, db: Session = Depends(get_db)) -> ListingDetailsResponse:
     return await fetch_full_listing_info(listing_id, db)
 
 

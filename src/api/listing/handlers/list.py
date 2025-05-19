@@ -3,10 +3,11 @@ from fastapi import HTTPException, status
 from typing import List
 
 from src.models import PropertyListing
+from src.models.bookmarks import Bookmark
 from src.schemas.listing import ListingsListResponse
 
 
-async def fetch_listings(db: Session) -> List[ListingsListResponse]:
+async def fetch_listings(user_id: str, db: Session) -> List[ListingsListResponse]:
     try:
         # TODO: Add search filters and pagination later
         listings = db.query(PropertyListing).all()
@@ -17,7 +18,7 @@ async def fetch_listings(db: Session) -> List[ListingsListResponse]:
         return [ListingsListResponse(
             id=listing.id,
             name=listing.name,
-            image_thumbnail=listing.images[0] if len(listing.images) > 1 else None,
+            image_thumbnail=listing.images[0] if len(listing.images) > 0 else None,
             location=listing.location,
             price_per_night=listing.price_per_night,
             room_count=listing.room_count,
@@ -25,7 +26,10 @@ async def fetch_listings(db: Session) -> List[ListingsListResponse]:
             listing_area=listing.listing_area,
             avg_rating=listing.average_rating,
             review_count=listing.total_reviews,
-            # TODO: Add is_bookmarked tag later in response
+            is_bookmarked=any(
+                bookmark.user_id == user_id 
+                for bookmark in listing.bookmarks
+            ) if user_id else False
         ) for listing in listings]
 
     except Exception as e:

@@ -1,5 +1,7 @@
+from pathlib import Path
 from fastapi import FastAPI
 from brotli_asgi import BrotliMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from src.api.auth.router import auth_router
 from src.api.profile.router import user_profile_router
@@ -8,16 +10,25 @@ from src.api.reviews.router import reviews_router
 from src.api.notifications.router import notifications_router
 from src.core.config import settings
 from src.utils.scheduler import setup_scheduler
+from docs.views import router
 
 api_version_str = f"/api/{settings.API_VERSION}"
 
-app = FastAPI()
+APP_ROOT = Path(__file__).parent.parent
+
+app = FastAPI(
+    docs_url=None,
+    redoc_url=None,
+)
+
 
 setup_scheduler(app)
 
+app.mount("/static", StaticFiles(directory=APP_ROOT / "static"), name="static")
+
 app.add_middleware(BrotliMiddleware)
 
-
+app.include_router(router=router, prefix="/api")
 app.include_router(auth_router, prefix=f"{api_version_str}/auth", tags=["Authentication"])
 app.include_router(user_profile_router, prefix=f"{api_version_str}/user", tags=["User Profiles"])
 app.include_router(listing_router, prefix=f"{api_version_str}/listings", tags=["Listings"])

@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from src.api.profile.handlers.bookmarks import fetch_user_bookmarks
 from src.api.profile.handlers.picture import set_profile_picture
+from src.schemas.bookmarks import BookmarksListResponse
 from src.schemas.listing import ListingsListResponse
 
 from .handlers.listings import get_user_listings
@@ -34,8 +35,8 @@ async def get_user_properties(user_id: str = Depends(get_current_user_id), db: S
     return await get_user_listings(user_id, db)
 
 
-@user_profile_router.get("/bookmarks", status_code=status.HTTP_200_OK)
-async def get_user_bookmarks(user_id: str = Depends(get_current_user_id), db: Session = Depends(get_db)):
+@user_profile_router.get("/bookmarks", status_code=status.HTTP_200_OK, response_model=List[BookmarksListResponse])
+async def get_user_bookmarks(user_id: str = Depends(get_current_user_id), db: Session = Depends(get_db)) -> List[BookmarksListResponse]:
     return await fetch_user_bookmarks(user_id, db)
 
 

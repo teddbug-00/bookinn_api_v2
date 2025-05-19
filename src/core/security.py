@@ -1,11 +1,12 @@
-from datetime import timedelta, datetime
+from datetime import UTC, timedelta, datetime
 from typing import Optional
 from uuid import UUID
 
 from fastapi.security import OAuth2PasswordBearer
-from jose import ExpiredSignatureError, jwt
+from jose import ExpiredSignatureError, JWTError, jwt
 from jose.exceptions import JWEInvalidAuth
 from fastapi import status, HTTPException, Depends
+from pydantic import BaseModel
 
 from src.core.config import settings
 
@@ -13,6 +14,11 @@ from src.core.config import settings
 api_version_str = f"/api/{settings.API_VERSION}"
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{api_version_str}/auth/token")
+
+class TokenPayload(BaseModel):
+    sub: UUID
+    exp: datetime
+    type: str
 
 async def _create_token(user_id: str, token_type: str, expires_delta: Optional[timedelta] = None) -> str:
 
@@ -22,11 +28,9 @@ async def _create_token(user_id: str, token_type: str, expires_delta: Optional[t
         "password_reset": timedelta(minutes=settings.PASSWORD_RESET_TOKEN_EXPIRE_MINUTES)
     }
 
-    expires_on = datetime.now() + (expires_delta or default_expires[token_type])
-
     payload = {
         "sub": user_id,
-        "exp": expires_on,
+        "exp": datetime.now() + (expires_delta or default_expires[token_type]),
         "type": token_type
     }
 
@@ -37,24 +41,47 @@ async def create_access_token(user_id: str, expires_delta: Optional[timedelta] =
     return await _create_token(user_id, "access", expires_delta)
 
 
+async def verify_refresh_token(token: str) -> bool:
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+
+        token_data = TokenPayload(**payload)
+
+        if token_data.type != "refresh":
+            return False
+        
+        return True
+    
+    except Exception:
+        return False
+
+
+async def verify_access_token(token: str) -> bool:
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+
+        token_data = TokenPayload(**payload)
+
+        if token_data.type != "access":
+            return False
+        
+        return True
+    
+    except Exception:
+        return False
+
+
 async def create_refresh_token(user_id:str, expires_delta: Optional[timedelta] = None) -> str:
     return await _create_token(user_id, "refresh", expires_delta)
 
 
-async def _decode_token(token: str, add_auth_header: bool =True) -> UUID:
+async def _decode_token(token: str, add_auth_header: bool =True) -> TokenPayload:
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
-        user_id = payload.get("sub")
 
-        if user_id is None:
-            headers = {"WWW-Authenticate": "Bearer"} if add_auth_header else {}
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid authentication credentials",
-                headers=headers
-            )
+        token_data = TokenPayload(**payload)
 
-        return UUID(user_id)
+        return token_data
 
     except JWEInvalidAuth:
         headers = {"WWW-Authenticate": "Bearer"} if add_auth_header else {}
@@ -64,11 +91,39 @@ async def _decode_token(token: str, add_auth_header: bool =True) -> UUID:
             headers=headers,
         )
     except ExpiredSignatureError:
+        headers = {"WWW-Authenticate": "Bearer"} if add_auth_header else {}
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token signature expired"
+            detail="Token signature expired",
+            headers=headers
+        )
+    except JWTError:
+        headers = {"WWW-Authenticate": "Bearer"} if add_auth_header else {}
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token",
+            headers=headers
         )
 
 
 async def get_current_user_id(token: str = Depends(oauth2_scheme)) -> UUID:
-    return await _decode_token(token, add_auth_header=True)
+
+    payload = await _decode_token(token, add_auth_header=True)
+
+    if payload.type != "access":
+        headers = {"WWW-Authenticate": "Bearer"}
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token type for authentication",
+            headers=headers
+        )
+
+    if payload.sub is None:
+        headers = {"WWW-Authenticate": "Bearer"}
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication credentials",
+            headers=headers
+        )
+
+    return payload.sub

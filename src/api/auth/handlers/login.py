@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from src.core.security import create_access_token, create_refresh_token
 from src.models import User
-from src.schemas.auth import LoginRequest, LoginResponse
+from src.schemas.auth import LoginRequest, LoginResponse, LoginResponseBase, UserCreateResponse
 from sqlalchemy.exc import NoResultFound
 
 from src.utils.passwords import verify_password
@@ -14,7 +14,7 @@ async def login(user_credentials: LoginRequest, db: Session) -> LoginResponse:
 
     try:
 
-        user = db.query(User).filter(user_credentials.email == User.email).first()
+        user = db.query(User).filter(User.email == user_credentials.email).first()
 
         if not user or not verify_password(user_credentials.password, user.password_salt, user.hashed_password):
             raise HTTPException(
@@ -27,9 +27,7 @@ async def login(user_credentials: LoginRequest, db: Session) -> LoginResponse:
 
         return LoginResponse(
             access_token=access_token,
-            refresh_token=refresh_token,
-            token_type="bearer",
-            user_id=user.id
+            refresh_token=refresh_token
         )
 
     except Exception as e:
@@ -37,9 +35,9 @@ async def login(user_credentials: LoginRequest, db: Session) -> LoginResponse:
 
 
 
-async def login_for_swagger(form_data: OAuth2PasswordRequestForm, db: Session) -> LoginResponse:
+async def login_for_swagger(form_data: OAuth2PasswordRequestForm, db: Session) -> LoginResponseBase:
     try:
-        user = db.query(User).filter(form_data.username == User.email).first()
+        user = db.query(User).filter(User.email == form_data.username).first()
 
         if not user or not verify_password(form_data.password, user.password_salt, user.hashed_password):
             raise HTTPException(
@@ -50,11 +48,9 @@ async def login_for_swagger(form_data: OAuth2PasswordRequestForm, db: Session) -
         access_token = await create_access_token(str(user.id))
         refresh_token = await create_refresh_token(str(user.id))
 
-        return LoginResponse(
+        return LoginResponseBase(
             access_token=access_token,
-            refresh_token=refresh_token,
-            token_type="bearer",
-            user_id=user.id
+            refresh_token=refresh_token
         )
 
     except NoResultFound:
