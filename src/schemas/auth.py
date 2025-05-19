@@ -40,7 +40,6 @@ class LoginResponse(LoginResponseBase):
 class TokenRefreshResponse(BaseModel):
     access_token: str
     refresh_token: str
-    token_type: str
 
 
 class LoginForm(BaseModel):

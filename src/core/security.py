@@ -20,6 +20,7 @@ class TokenPayload(BaseModel):
     exp: datetime
     type: str
 
+
 async def _create_token(user_id: str, token_type: str, expires_delta: Optional[timedelta] = None) -> str:
 
     default_expires = {
@@ -41,19 +42,26 @@ async def create_access_token(user_id: str, expires_delta: Optional[timedelta] =
     return await _create_token(user_id, "access", expires_delta)
 
 
-async def verify_refresh_token(token: str) -> bool:
-    try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+async def verify_refresh_token(token: str) -> str:
 
-        token_data = TokenPayload(**payload)
+    payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
 
-        if token_data.type != "refresh":
-            return False
+    token_data = TokenPayload(**payload)
+
+    if token_data.type != "refresh":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid token type"
+        )
         
-        return True
-    
-    except Exception:
-        return False
+    if datetime.now(UTC) > token_data.exp:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Refresh token expired"
+        )
+        
+    return str(token_data.sub)
+
 
 
 async def verify_access_token(token: str) -> bool:
