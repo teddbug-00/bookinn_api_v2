@@ -62,7 +62,7 @@ def calculate_popularity_score(listing: PropertyListing) -> float:
     
     return round(total_score, 2)
 
-def _calculate_recent_bookmarks(bookmarks: list, now: datetime) -> int:
+def _calculate_recent_bookmarks(bookmarks: list, now: datetime) -> float:
     """Calculate weighted sum of bookmarks, with more recent ones counting more"""
     total = 0
     for bookmark in bookmarks:
@@ -123,7 +123,7 @@ def _calculate_freshness_score(created_at: datetime, now: datetime) -> float:
     Newer listings get higher scores
     """
     days_old = (now - created_at).days
-    half_life = 90  # Score halves every 90 days
+    half_life = 90
     
     decay = exp(-days_old * log10(2) / half_life)
     return 15 * decay

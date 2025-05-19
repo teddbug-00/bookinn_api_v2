@@ -11,9 +11,9 @@ async def update_popularity_scores(db: Session, batch_size: int = 100):
         db (Session): SQLAlchemy database session used for querying and updating records.
         batch_size (int, optional): Number of records to process in each batch. Defaults to 100.
     Process:
-        - Retrieves PropertyListing records ordered by most recently updated.
+        - Retrieves PropertyListing records ordered by most recently updated and only those tagged for update.
         - For each batch, calculates and updates the popularity_score for each listing.
-        - Commits the changes to the database after processing each batch.
+        - Commits the changes to the database after processing each batch and changes the to_update tag.
         - Continues processing until all listings have been updated.
     """
     offset = 0
@@ -36,3 +36,4 @@ async def update_popularity_scores(db: Session, batch_size: int = 100):
         db.commit()
         
         offset += batch_size
+        

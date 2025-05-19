@@ -9,8 +9,7 @@ def setup_scheduler(app: FastAPI):
     scheduler = AsyncIOScheduler()
     scheduler.add_job(
         update_popularity_scores,
-        CronTrigger(second=59),
-        # CronTrigger(hour='*/6')
+        CronTrigger(hour='*/6'),
         args=[DBSession()],
         kwargs={'batch_size': 100},
         id='update_popularity_scores',
@@ -20,11 +19,9 @@ def setup_scheduler(app: FastAPI):
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         scheduler.start()
-        print("Scheduler cron started")
         try:
             yield
         finally:
             scheduler.shutdown()
-            print("Scheduler cron stopped")
 
     app.router.lifespan_context = lifespan

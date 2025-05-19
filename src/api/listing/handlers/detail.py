@@ -10,7 +10,6 @@ async def fetch_full_listing_info(listing_id: str, db: Session) -> ListingDetail
     try:
         listing = db.query(PropertyListing).filter(PropertyListing.id == listing_id).first()
 
-        # TODO: Check: why does the except block take precedence over this?
         if listing is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
