@@ -12,6 +12,8 @@ async def get_user_listings(user_id: str, db: Session) -> List[ListingsListRespo
         
         if not listings:
             return []
+        
+        user_bookmarks = db.query(Bookmark).filter(Bookmark.user_id == user_id).all()
             
         return [
             ListingsListResponse(
@@ -25,9 +27,7 @@ async def get_user_listings(user_id: str, db: Session) -> List[ListingsListRespo
                 image_thumbnail=listing.images[0] if listing.images else None,
                 avg_rating=0 if listing.average_rating is None else listing.average_rating,
                 review_count=listing.total_reviews,
-                is_bookmarked= True if db.query(Bookmark).filter(
-                    user_id == Bookmark.user_id,
-                    listing.id == Bookmark.listing_id).first() else False
+                is_bookmarked= True if listing.id in [bookmark.listing_id for bookmark in user_bookmarks] else False,
             )
             for listing in listings
         ]
