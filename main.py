@@ -26,7 +26,7 @@ app.include_router(notifications_router, prefix=f"{api_version_str}/notification
 
 @app.get("/")
 async def index():
-    return {"message": "Welcome to the API"}
+    return {"message": "Hello from the BookInn team"}
 
 @app.get("/health")
 async def health_check():
