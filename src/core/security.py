@@ -3,7 +3,7 @@ from typing import Optional
 from uuid import UUID
 
 from fastapi.security import OAuth2PasswordBearer
-from jose import jwt
+from jose import ExpiredSignatureError, jwt
 from jose.exceptions import JWEInvalidAuth
 from fastapi import status, HTTPException, Depends
 
@@ -62,6 +62,11 @@ async def _decode_token(token: str, add_auth_header: bool =True) -> UUID:
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid authentication credentials",
             headers=headers,
+        )
+    except ExpiredSignatureError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token signature expired"
         )
 
 

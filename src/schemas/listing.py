@@ -81,6 +81,7 @@ class ListingDetailsResponse(BaseModel):
     name: str
     owner_id: str
     owner_name: str
+    owner_profile_picture_url: str | None
     listing_type: ListingType
     amenities: List[Amenities]
     is_available: Optional[bool] = False

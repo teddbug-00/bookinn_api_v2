@@ -21,6 +21,7 @@ async def fetch_full_listing_info(listing_id: str, db: Session) -> ListingDetail
             name=listing.name,
             owner_id=str(listing.owner_id),
             owner_name=listing.owner.profile.name,
+            owner_profile_picture_url=listing.owner.profile.profile_picture_url,
             listing_type=listing.listing_type,
             amenities=listing.amenities,
             is_available=listing.is_available,
@@ -44,7 +45,7 @@ async def fetch_full_listing_info(listing_id: str, db: Session) -> ListingDetail
                     rating=review.rating,
                     reviewer_name=review.reviewer.name,
                     reviewer_profile_picture_url=review.reviewer.profile_picture_url
-                ) for review in listing.reviews[::4]
+                ) for review in listing.reviews[:5]
             ] if listing.reviews else [],
             # TODO: Add is_bookmarked later
             description=listing.description

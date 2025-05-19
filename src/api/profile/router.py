@@ -3,6 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
+from src.api.profile.handlers.bookmarks import fetch_user_bookmarks
 from src.api.profile.handlers.picture import set_profile_picture
 from src.schemas.listing import ListingsListResponse
 
@@ -31,6 +32,11 @@ async def add_profile_picture(user_id: str = Depends(get_current_user_id), db: S
 @user_profile_router.get("/listings", status_code=status.HTTP_200_OK, response_model=List[ListingsListResponse])
 async def get_user_properties(user_id: str = Depends(get_current_user_id), db: Session = Depends(get_db)) -> List[ListingsListResponse]:
     return await get_user_listings(user_id, db)
+
+
+@user_profile_router.get("/bookmarks", status_code=status.HTTP_200_OK)
+async def get_user_bookmarks(user_id: str = Depends(get_current_user_id), db: Session = Depends(get_db)):
+    return await fetch_user_bookmarks(user_id, db)
 
 
 @user_profile_router.get("/reviews", status_code=status.HTTP_200_OK, response_model=List[UserReviewsResponse])

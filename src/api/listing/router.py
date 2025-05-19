@@ -1,13 +1,15 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session 
 
+from src.api.listing.handlers.remove_bookmark import remove_bookmark
 from src.api.listing.handlers.create import create_listing
 from src.api.listing.handlers.delete import remove_listing
 from src.api.listing.handlers.detail import fetch_full_listing_info
 from src.api.listing.handlers.list import fetch_listings
 from src.api.listing.handlers.reviews import fetch_reviews
 from src.api.listing.handlers.update import update_listing
+from src.api.listing.handlers.add_bookmark import add_bookmark
 from src.core.db import get_db
 from src.core.security import get_current_user_id
 from src.schemas.listing import ListingCreateRequest, ListingCreateResponse, ListingUpdateRequest, \
@@ -53,6 +55,28 @@ async def edit_listing(
     db: Session = Depends(get_db)) -> ListingUpdateResponse:
 
     return await update_listing(listing_id, update_data, user_id, db)
+
+
+@listing_router.post("/{listing_id}/bookmark", status_code=status.HTTP_201_CREATED)
+async def bookmark_listing(
+    listing_id: str,
+    user_id: str = Depends(get_current_user_id),
+    db: Session = Depends(get_db)):
+    
+    return await add_bookmark(user_id, listing_id, db)
+
+
+@listing_router.delete("/{listing_id}/bookmark", status_code=status.HTTP_204_NO_CONTENT)
+async def unbookmark_listing(
+    listing_id: str,
+    user_id: str = Depends(get_current_user_id),
+    db: Session = Depends(get_db)):
+    
+    if not await remove_bookmark(db, user_id, listing_id):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Bookmark not found"
+        )
 
 
 @listing_router.delete("/{listing_id}/delete", status_code=status.HTTP_204_NO_CONTENT)

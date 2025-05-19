@@ -2,6 +2,7 @@ from typing import List
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
+from src.models.bookmarks import Bookmark
 from src.models.listing import PropertyListing
 from src.schemas.listing import ListingsListResponse
 
@@ -24,7 +25,9 @@ async def get_user_listings(user_id: str, db: Session) -> List[ListingsListRespo
                 image_thumbnail=listing.images[0] if listing.images else None,
                 avg_rating=0 if listing.average_rating is None else listing.average_rating,
                 review_count=listing.total_reviews,
-                is_bookmarked=False  # Add bookmark logic later
+                is_bookmarked= True if db.query(Bookmark).filter(
+                    user_id == Bookmark.user_id,
+                    listing.id == Bookmark.listing_id).first() else False
             )
             for listing in listings
         ]
