@@ -7,11 +7,13 @@ from src.api.listing.router import listing_router
 from src.api.reviews.router import reviews_router
 from src.api.notifications.router import notifications_router
 from src.core.config import settings
+from src.utils.scheduler import setup_scheduler
 
 api_version_str = f"/api/{settings.API_VERSION}"
 
 app = FastAPI()
 
+setup_scheduler(app)
 
 app.add_middleware(BrotliMiddleware)
 

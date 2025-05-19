@@ -16,6 +16,7 @@ async def remove_bookmark(db: Session, user_id: str, listing_id: str):
     listing = db.query(PropertyListing).filter(listing_id == PropertyListing.id).first()
     if listing:
         listing.total_bookmarks = max(0, listing.total_bookmarks - 1)
+        listing.update_popularity = True
 
     db.delete(bookmark)
     db.commit()

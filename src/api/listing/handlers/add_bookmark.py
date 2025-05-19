@@ -17,10 +17,10 @@ async def add_bookmark(user_id: str, listing_id: str, db: Session):
         listing = db.query(PropertyListing).filter(bookmark.listing_id == PropertyListing.id).first()
         if listing:
             listing.total_bookmarks += 1
+            listing.update_popularity = True
 
         db.commit()
-        db.refresh(bookmark)
-
+        
         return {"status": "Bookmark added"}
     except IntegrityError:
         db.rollback()

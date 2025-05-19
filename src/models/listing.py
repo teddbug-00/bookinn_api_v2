@@ -40,6 +40,7 @@ class PropertyListing(Base):
     popularity_score = mapped_column(Float, default=0.0, index=True)
     view_count = mapped_column(Integer, default=0)
     total_bookmarks = mapped_column(Integer, default=0)
+    update_popularity = mapped_column(Boolean, default=False, index=True)
     created_at = mapped_column(DateTime, server_default=func.now())
     updated_at = mapped_column(DateTime, server_default=func.now(), onupdate=func.now())
 

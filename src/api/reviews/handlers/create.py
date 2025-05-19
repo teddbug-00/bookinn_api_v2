@@ -6,7 +6,7 @@ from src.models.reviews import Review
 from src.schemas.review import ReviewCreateRequest
 
 
-async def _update_ratings_data(listing, db: Session, new_rating: float):
+async def _update_ratings_data(listing: PropertyListing, db: Session, new_rating: float):
 
     assert listing is not None
 
@@ -18,6 +18,8 @@ async def _update_ratings_data(listing, db: Session, new_rating: float):
         listing.total_reviews += 1
 
         listing.average_rating = float((curr_total_ratings + new_rating) / listing.total_reviews).__round__(1)
+
+        listing.update_popularity = True
 
         db.add(listing)
         db.commit()

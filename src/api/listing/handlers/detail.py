@@ -16,6 +16,12 @@ async def fetch_full_listing_info(listing_id: str, db: Session) -> ListingDetail
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Listing not found",
             )
+        
+        listing.view_count += 1
+        listing.update_popularity = True
+
+        db.add(listing)
+        db.commit()
 
         return ListingDetailsResponse(
             name=listing.name,
@@ -47,7 +53,6 @@ async def fetch_full_listing_info(listing_id: str, db: Session) -> ListingDetail
                     reviewer_profile_picture_url=review.reviewer.profile_picture_url
                 ) for review in listing.reviews[:5]
             ] if listing.reviews else [],
-            # TODO: Add is_bookmarked later
             description=listing.description
         )
     except Exception as e:

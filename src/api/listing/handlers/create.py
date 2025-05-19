@@ -18,7 +18,8 @@ async def create_listing(listing_data: ListingCreateRequest, user_id: str, db: S
             room_count=listing_data.room_count,
             bathrooms_count=listing_data.bathrooms_count,
             listing_area=listing_data.listing_area,
-            description=listing_data.description
+            description=listing_data.description,
+            update_popularity=True
         )
 
         db.add(new_listing)
