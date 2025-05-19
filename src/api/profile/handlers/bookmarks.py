@@ -12,7 +12,7 @@ async def fetch_user_bookmarks(user_id: str, db: Session) -> List[BookmarksListR
             return []
         
         return [BookmarksListResponse(
-            id=bookmark.id,
+            id=bookmark.listing_id,
             name=bookmark.listing.name,
             location=bookmark.listing.location,
             price_per_night=bookmark.listing.price_per_night,
