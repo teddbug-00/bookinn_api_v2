@@ -10,7 +10,7 @@ from src.schemas.review import ReviewListResponse
 
 async def fetch_reviews(listing_id: UUID, db: Session) -> List[ReviewListResponse]:
     try:
-        reviews = db.query(Review).filter(listing_id == Review.listing_id).all()
+        reviews = db.query(Review).filter(Review.listing_id == listing_id).all()
 
         if not reviews:
             return []

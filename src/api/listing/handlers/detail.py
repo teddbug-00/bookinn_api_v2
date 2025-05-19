@@ -8,7 +8,7 @@ from src.schemas.review import ReviewListResponse
 
 async def fetch_full_listing_info(listing_id: str, db: Session) -> ListingDetailsResponse:
     try:
-        listing = db.get(PropertyListing, listing_id)
+        listing = db.query(PropertyListing).filter(PropertyListing.id == listing_id).first()
 
         # TODO: Check: why does the except block take precedence over this?
         if listing is None:
@@ -20,7 +20,6 @@ async def fetch_full_listing_info(listing_id: str, db: Session) -> ListingDetail
         listing.view_count += 1
         listing.update_popularity = True
 
-        db.add(listing)
         db.commit()
 
         return ListingDetailsResponse(
