@@ -44,10 +44,25 @@ class PropertyListing(Base):
     updated_at = mapped_column(DateTime, server_default=func.now(), onupdate=func.now())
 
     # Relationships
-    owner = relationship("User", back_populates="listings")
-    images = relationship("ListingImage", back_populates="listing", cascade="all, delete-orphan")
-    reviews = relationship("Review", back_populates="listing", cascade="all, delete-orphan")
-    bookmarks = relationship("Bookmark", back_populates="listing", cascade="all, delete-orphan")
+    owner = relationship(
+        "User", 
+        back_populates="listings"
+    )
+    images = relationship(
+        "ListingImage", 
+        back_populates="listing", 
+        cascade="all, delete-orphan"
+    )
+    reviews = relationship(
+        "Review", 
+        back_populates="listing", 
+        cascade="all, delete-orphan"
+    )
+    bookmarks = relationship(
+        "Bookmark", 
+        back_populates="listing", 
+        cascade="all, delete-orphan"
+    )
     bookmarked_by = relationship(
         "User",
         secondary="bookmarks",
@@ -66,4 +81,7 @@ class ListingImage(Base):
     uploaded_at = mapped_column(DateTime, server_default=func.now())
 
     # Relationship
-    listing = relationship("PropertyListing", back_populates="images")
+    listing = relationship(
+        "PropertyListing", 
+        back_populates="images"
+    )
