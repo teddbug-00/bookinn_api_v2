@@ -11,6 +11,7 @@ from src.api.notifications.router import notifications_router
 from src.core.config import settings
 from src.utils.scheduler import setup_scheduler
 from docs.views import router
+from src.logging.logger import logger
 
 api_version_str = f"/api/{settings.API_VERSION}"
 
@@ -37,6 +38,7 @@ app.include_router(notifications_router, prefix=f"{api_version_str}/notification
 
 @app.get("/")
 async def index():
+    logger.error("Request received for index endpoint")
     return {"message": "Hello from the BookInn team"}
 
 @app.get("/health")

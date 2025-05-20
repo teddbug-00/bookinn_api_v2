@@ -13,7 +13,7 @@ async def register(user_data: UserCreateRequest, db: Session) -> UserCreateRespo
 
         if user_data.password != user_data.password_confirm:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
+                status_code=status.HTTP_406_NOT_ACCEPTABLE,
                 detail="Passwords don't match",
             )
 
@@ -47,6 +47,6 @@ async def register(user_data: UserCreateRequest, db: Session) -> UserCreateRespo
     except IntegrityError:
         db.rollback()
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=status.HTTP_409_CONFLICT,
             detail="A user with that email already exists"
         )
