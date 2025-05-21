@@ -1,11 +1,20 @@
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
+from src.api.listing.handlers import detail
 from src.models.listing import PropertyListing
+from src.models.profile import UserProfile
 from src.schemas.listing import ListingCreateRequest, ListingCreateResponse
 
 
 async def create_listing(listing_data: ListingCreateRequest, user_id: str, db: Session) -> ListingCreateResponse:
+
+    if not db.get(UserProfile, user_id):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    
     try:
         new_listing = PropertyListing(
             owner_id=user_id,

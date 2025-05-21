@@ -15,13 +15,14 @@ async def fetch_reviews(listing_id: UUID, db: Session) -> List[ReviewListRespons
         if not reviews:
             return []
 
-        return [ReviewListResponse(
-            rating=review.rating,
-            comment=review.comment,
-            reviewer_name=review.reviewer.name,
-            reviewer_profile_picture_url=review.reviewer.profile_picture_url
-
-        )   for review in reviews]
+        return [
+            ReviewListResponse(
+                rating=review.rating,
+                comment=review.comment,
+                reviewer_name=review.reviewer.name,
+                reviewer_profile_picture_url=review.reviewer.profile_picture_url
+            ) for review in reviews
+        ]
 
     except Exception as e:
         raise HTTPException(

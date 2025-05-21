@@ -2,10 +2,17 @@ from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
 from src.models.listing import PropertyListing
+from src.models.profile import UserProfile
 from src.schemas.listing import ListingUpdateRequest, ListingUpdateResponse
 
 
 async def update_listing(listing_id: str, update_data: ListingUpdateRequest, user_id: str, db: Session) -> ListingUpdateResponse:
+
+    if not db.get(UserProfile, user_id):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
     
     update_dict = update_data.model_dump(exclude_none=True)
 
@@ -17,7 +24,7 @@ async def update_listing(listing_id: str, update_data: ListingUpdateRequest, use
 
     try:
 
-        curr_listing_data = db.query(PropertyListing).filter(user_id == PropertyListing.owner_id and listing_id == PropertyListing.id).first()
+        curr_listing_data = db.query(PropertyListing).filter(PropertyListing.owner_id == user_id and PropertyListing.id == listing_id).first()
         
         for field, value in update_dict.items():
             if hasattr(curr_listing_data, field):

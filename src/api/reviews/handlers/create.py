@@ -5,6 +5,7 @@ from src.core.db import DBSession
 from src.models.activities import Activity, ActivityAction, ActivityType
 from src.models.listing import PropertyListing
 from src.models.reviews import Review
+from src.models.user import User
 from src.schemas.review import ReviewCreateRequest
 from src.logging.logger import logger
 
@@ -89,34 +90,39 @@ async def create_review(
         user_id: str, 
         db: Session, 
         background_tasks: BackgroundTasks):
+
+    if not db.get(User, user_id):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        ) 
     
-    try:
+    listing = db.query(PropertyListing).filter(PropertyListing.id == listing_id).first()
 
-        listing = db.query(PropertyListing).filter(PropertyListing.id == listing_id).first()
-
-        if listing is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Listing not found"
-            )
-
-        if listing.owner_id == user_id:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="You cannot review your own listing"
-            )
-
-        existing_review = db.query(Review).filter(
+    if listing is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Listing not found"
+        )
+    
+    if listing.owner_id == user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You cannot review your own listing"
+        )
+    
+    existing_review = db.query(Review).filter(
             Review.listing_id == listing_id,
             Review.reviewer_id == user_id
         ).first()
 
-        if existing_review:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="You have already reviewed this listing"
-            )
-
+    if existing_review:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You have already reviewed this listing"
+        )
+    
+    try:
         new_review = Review(
             listing_id=listing_id,
             reviewer_id=user_id,
@@ -138,6 +144,7 @@ async def create_review(
         return {"message": "Review created"}
 
     except Exception as e:
+        
         logger.error(
             f"Error creating review: {str(e)}"
         )

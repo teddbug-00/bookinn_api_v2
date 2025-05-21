@@ -4,8 +4,16 @@ from sqlalchemy.exc import IntegrityError
 
 from src.models.bookmarks import Bookmark
 from src.models.listing import PropertyListing
+from src.models.profile import UserProfile
 
 async def add_bookmark(user_id: str, listing_id: str, db: Session):
+
+    if not db.get(UserProfile, user_id):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+
     try:
         bookmark = Bookmark(
             user_id=user_id,

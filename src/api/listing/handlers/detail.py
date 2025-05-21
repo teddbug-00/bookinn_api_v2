@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 
 from src.models import PropertyListing
+from src.models.profile import UserProfile
 from src.schemas.listing import ListingDetailsResponse, ListingImageResponse
 from src.schemas.review import ReviewListResponse
 
