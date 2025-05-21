@@ -1,39 +1,98 @@
-from fastapi import HTTPException, status
+from fastapi import BackgroundTasks, HTTPException, status
 from sqlalchemy.orm import Session
 
+from src.core.db import DBSession
+from src.models.activities import Activity, ActivityAction, ActivityType
 from src.models.listing import PropertyListing
 from src.models.reviews import Review
 from src.schemas.review import ReviewCreateRequest
+from src.logging.logger import logger
 
 
-async def _update_ratings_data(listing: PropertyListing, db: Session, new_rating: float):
+async def _update_ratings_data(listing_id: str, user_id: str, new_rating: float):
 
-    assert listing is not None
+    db = DBSession()
+
+    listing = None
 
     try:
+        listing = db.query(PropertyListing).filter(PropertyListing.id == listing_id).first()
 
-        curr_total_ratings = float(
-            (0 if listing.average_rating is None else listing.average_rating) * listing.total_reviews)
+        if listing is not None:
 
-        listing.total_reviews += 1
+            curr_total_ratings = float(listing.average_rating * listing.total_reviews)
 
-        listing.average_rating = float((curr_total_ratings + new_rating) / listing.total_reviews).__round__(1)
+            listing.total_reviews += 1
 
-        listing.update_popularity = True
+            listing.average_rating = float((curr_total_ratings + float(new_rating)) / listing.total_reviews).__round__(1)
 
-        db.add(listing)
-        db.commit()
-        db.refresh(listing)
+            print(listing.average_rating)
+
+
+            listing.update_popularity = True
+
+            db.add(listing)
+            db.commit()
 
     except Exception as e:
-        # TODO: Do proper logging here instead
-        print(e)
+        if listing is not None:
+            logger.error(
+                f"Error updating rating data for listing {str(listing.id)[:4]}-*******: {str(e)}"
+            )
+
+    if listing is not None:
+        await _save_activity(listing, user_id, db)
 
 
-async def create_review(listing_id: str, review_data: ReviewCreateRequest, user_id: str, db: Session):
+async def _save_activity(listing: PropertyListing, user_id: str, db: Session):
+    
+    try:
+        reviewer_activity = Activity(
+            user_id=user_id,
+            type=ActivityType.REVIEW,
+            action=ActivityAction.CREATE,
+            entity_id=listing.id,
+            entity_type="PropertyListing",
+            metadatas={
+                "listing_id": str(listing.id),
+                "listing_name": listing.name,
+                "listing_image_thumbnail": listing.images[0] if len(listing.images) > 0 else None
+            }
+        )
+
+
+        listing_owner_activity = Activity(
+            user_id=listing.owner_id,
+            type=ActivityType.REVIEW,
+            action=ActivityAction.RECEIVE,
+            entity_id=listing.id,
+            entity_type="PropertyListing",
+            metadatas={
+                "listing_id": str(listing.id),
+                "listing_name": listing.name,
+                "listing_image_thumbnail": listing.images[0] if len(listing.images) > 0 else None
+            }
+        )
+
+        db.add_all([reviewer_activity, listing_owner_activity])
+        db.commit()
+    
+    except Exception as e:
+        logger.error(
+            f"Error saving activity data for users {str(user_id)[:4]}-******** and {str(listing.owner_id)[:4]}-********: {str(e)}"
+        )
+
+
+async def create_review(
+        listing_id: str, 
+        review_data: ReviewCreateRequest, 
+        user_id: str, 
+        db: Session, 
+        background_tasks: BackgroundTasks):
+    
     try:
 
-        listing = db.query(PropertyListing).filter(listing_id == PropertyListing.id).first()
+        listing = db.query(PropertyListing).filter(PropertyListing.id == listing_id).first()
 
         if listing is None:
             raise HTTPException(
@@ -48,8 +107,8 @@ async def create_review(listing_id: str, review_data: ReviewCreateRequest, user_
             )
 
         existing_review = db.query(Review).filter(
-            listing_id == Review.listing_id,
-            user_id == Review.reviewer_id
+            Review.listing_id == listing_id,
+            Review.reviewer_id == user_id
         ).first()
 
         if existing_review:
@@ -69,12 +128,16 @@ async def create_review(listing_id: str, review_data: ReviewCreateRequest, user_
         db.commit()
         db.refresh(new_review)
 
-        await _update_ratings_data(listing, db, review_data.rating)
+        background_tasks.add_task(
+            _update_ratings_data,
+            listing_id,
+            user_id,
+            new_review.rating,
+        )
 
         return {"message": "Review created"}
 
-    except ValueError:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid UUID format"
+    except Exception as e:
+        logger.error(
+            f"Error creating review: {str(e)}"
         )

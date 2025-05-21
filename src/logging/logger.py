@@ -8,7 +8,7 @@ class AppLogger:
 
     def setup_logger(self):
         formatter = logging.Formatter(
-            '%(asctime)s - %(levelname)s - %(module)s - %(message)s'
+            '%(asctime)s - %(levelname)s - %(message)s'
         )
         
         # File handler for all logs

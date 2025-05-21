@@ -4,5 +4,6 @@ from .listing import PropertyListing, ListingImage
 from .reviews import Review
 from .notifications import Notification
 from .bookmarks import Bookmark
+from .activities import Activity
 
-__all__ = ["User", "UserProfile", "PropertyListing", "ListingImage", "Review", "Notification", "Bookmark"]
+__all__ = ["User", "UserProfile", "PropertyListing", "ListingImage", "Review", "Notification", "Bookmark", "Activity"]

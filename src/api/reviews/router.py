@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, BackgroundTasks, Depends, status
 from sqlalchemy.orm import Session
 
 from src.api.reviews.handlers.create import create_review
@@ -12,7 +12,8 @@ reviews_router = APIRouter()
 async def add_review(
     listing_id: str,
     review_data: ReviewCreateRequest,
-    user_id: str = Depends(get_current_user_id), 
-    db: Session = Depends(get_db)):
+    user_id: str = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+    background_tasks: BackgroundTasks = BackgroundTasks()):
 
-    return await create_review(listing_id, review_data, user_id, db)
+    return await create_review(listing_id, review_data, user_id, db, background_tasks)

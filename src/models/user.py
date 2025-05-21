@@ -26,3 +26,4 @@ class User(Base):
         back_populates="bookmarked_by",
         overlaps="bookmarks"
     )
+    activities = relationship("Activity", back_populates="user")
