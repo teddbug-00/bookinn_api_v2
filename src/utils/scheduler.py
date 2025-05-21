@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 from src.core.db import DBSession
+from src.core.config import settings
 from src.utils.tasks import update_popularity_scores
 from contextlib import asynccontextmanager
 
@@ -9,7 +10,7 @@ def setup_scheduler(app: FastAPI):
     scheduler = AsyncIOScheduler()
     scheduler.add_job(
         update_popularity_scores,
-        CronTrigger(hour='*/6'),
+        CronTrigger(hour='*/6') if not settings.DEBUG else CronTrigger(second=30),
         args=[DBSession()],
         kwargs={'batch_size': 100},
         id='update_popularity_scores',
