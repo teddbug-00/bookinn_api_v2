@@ -14,7 +14,7 @@ from src.schemas.profiles import UserCreateProfile, UserProfileUpdateRequest, Us
     UserReviewsResponse
 from .handlers.profile import get_profile
 from .handlers.edit import edit_user_profile
-from src.core.security import get_current_user_id
+from src.core.security.tokens import get_current_user_id
 from .handlers.reviews import get_reviews
 
 user_profile_router = APIRouter()

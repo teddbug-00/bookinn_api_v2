@@ -1,10 +1,17 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from src.api.auth.handlers.refresh import get_new_tokens
 from src.core.db import get_db
-from src.schemas.auth import LoginResponseBase, TokenRefreshResponse, UserCreateRequest, UserCreateResponse, LoginResponse, LoginRequest
+from src.schemas.auth import (
+    LoginResponseBase, 
+    TokenRefreshResponse, 
+    UserCreateRequest, 
+    UserCreateResponse, 
+    LoginResponse, 
+    LoginRequest
+)
 from .handlers.login import login, login_for_swagger
 from .handlers.register import register
 
@@ -16,7 +23,11 @@ async def register_user(user_data: UserCreateRequest, db: Session = Depends(get_
 
 
 @auth_router.post("/login", response_model=LoginResponse, status_code=status.HTTP_200_OK)
-async def login_user(user_credentials: LoginRequest, db: Session = Depends(get_db)) -> LoginResponse:
+async def login_user(
+    user_credentials: LoginRequest, 
+    db: Session = Depends(get_db)
+    ) -> LoginResponse:
+
     return await login(user_credentials, db)
 
 

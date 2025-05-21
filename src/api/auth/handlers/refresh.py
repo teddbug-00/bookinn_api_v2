@@ -2,7 +2,7 @@ from email.policy import HTTP
 from sqlalchemy.orm import Session
 from fastapi import  HTTPException, status
 
-from src.core.security import create_access_token, create_refresh_token, verify_refresh_token
+from src.core.security.tokens import create_access_token, create_refresh_token, verify_refresh_token
 from src.models.user import User
 from src.schemas.auth import TokenRefreshResponse
 

@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from src.api.notifications.handlers.list import fetch_notifications
 from src.core.db import get_db
-from src.core.security import get_current_user_id
+from src.core.security.tokens import get_current_user_id
 
 notifications_router = APIRouter()
 

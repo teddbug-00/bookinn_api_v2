@@ -11,7 +11,7 @@ from src.api.listing.handlers.reviews import fetch_reviews
 from src.api.listing.handlers.update import update_listing
 from src.api.listing.handlers.add_bookmark import add_bookmark
 from src.core.db import get_db
-from src.core.security import get_current_user_id
+from src.core.security.tokens import get_current_user_id
 from src.schemas.listing import ListingCreateRequest, ListingCreateResponse, ListingDetailsResponse, ListingUpdateRequest, \
     ListingUpdateResponse, ListingsListResponse
 from src.schemas.review import ReviewListResponse
