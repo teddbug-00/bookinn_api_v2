@@ -20,10 +20,17 @@ class User(Base):
     listings = relationship("PropertyListing", back_populates="owner")
     notifications = relationship("Notification", back_populates="receiver")
     bookmarks = relationship("Bookmark", back_populates="user", cascade="all, delete-orphan")
+
     bookmarked_listings = relationship(
         "PropertyListing", 
         secondary="bookmarks", 
         back_populates="bookmarked_by",
         overlaps="bookmarks"
     )
+
     activities = relationship("Activity", back_populates="user")
+        
+    guest_chats = relationship("Chat", foreign_keys="[Chat.user_id]", back_populates="user")
+    host_chats = relationship("Chat", foreign_keys="[Chat.host_id]", back_populates="host")
+    sent_messages = relationship("ChatMessage", back_populates="sender")
+    

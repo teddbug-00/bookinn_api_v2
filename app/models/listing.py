@@ -54,6 +54,10 @@ class PropertyListing(Base):
         back_populates="listing", 
         cascade="all, delete-orphan"
     )
+    chats = relationship(
+        "Chat", 
+        back_populates="listing"
+    )
     reviews = relationship(
         "Review", 
         back_populates="listing", 

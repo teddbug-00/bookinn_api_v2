@@ -3,9 +3,10 @@ from typing import Optional
 from uuid import UUID
 
 from fastapi.security import OAuth2PasswordBearer
+
 from jose import ExpiredSignatureError, JWTError, jwt
 from jose.exceptions import JWEInvalidAuth
-from fastapi import status, HTTPException, Depends
+from fastapi import WebSocket, WebSocketException, status, HTTPException, Depends
 from pydantic import BaseModel
 
 from app.core.config import settings
@@ -135,3 +136,18 @@ async def get_current_user_id(token: str = Depends(oauth2_scheme)) -> UUID:
         )
 
     return payload.sub
+
+
+async def get_current_user_ws(websocket: WebSocket):
+    print("Get websocket called")
+    try:
+        token = websocket.query_params.get("token")
+        if token is not None:
+            payload = await _decode_token(token, add_auth_header=True)
+            
+            if payload.sub is None:
+                raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION)
+        return payload.sub
+    except:
+        raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION)
+    

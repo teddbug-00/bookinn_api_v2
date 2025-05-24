@@ -5,5 +5,7 @@ from .reviews import Review
 from .notifications import Notification
 from .bookmarks import Bookmark
 from .activities import Activity
+from .chats import Chat, ChatMessage
 
-__all__ = ["User", "UserProfile", "PropertyListing", "ListingImage", "Review", "Notification", "Bookmark", "Activity"]
+
+__all__ = ["User", "UserProfile", "PropertyListing", "ListingImage", "Review", "Notification", "Bookmark", "Activity", "Chat", "ChatMessage"]

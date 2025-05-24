@@ -12,6 +12,8 @@ from app.api.profile.router import user_profile_router
 from app.api.listing.router import listing_router
 from app.api.reviews.router import reviews_router
 from app.api.notifications.router import notifications_router
+from app.api.chats.routes import chats_router
+from app.websockets.routes import ws
 from app.core.config import settings
 from app.core.db import get_db
 from app.models.user import User
@@ -70,6 +72,8 @@ app.include_router(user_profile_router, prefix=f"{api_version_str}/user", tags=[
 app.include_router(listing_router, prefix=f"{api_version_str}/listings", tags=["Listings"])
 app.include_router(reviews_router, prefix=f"{api_version_str}/reviews", tags=["Reviews"])
 app.include_router(notifications_router, prefix=f"{api_version_str}/notifications", tags=["Notifications"])
+app.include_router(chats_router, prefix=f"{api_version_str}/chats", tags=["Chats"])
+app.include_router(ws.router)
 
 @app.get("/")
 async def index():
@@ -97,3 +101,4 @@ async def get_db_stats(db: Session):
         print(e)    
 
 
+ 
