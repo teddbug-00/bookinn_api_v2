@@ -5,6 +5,7 @@ from brotli_asgi import BrotliMiddleware
 from fastapi.staticfiles import StaticFiles
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIASGIMiddleware
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.api.auth.router import auth_router
@@ -13,14 +14,16 @@ from app.api.listing.router import listing_router
 from app.api.reviews.router import reviews_router
 from app.api.notifications.router import notifications_router
 from app.api.chats.routes import chats_router
-from app.websockets.routes import ws
+from app.websockets.routes import chats
 from app.core.config import settings
 from app.core.db import get_db
 from app.models.user import User
 from app.profiling.profiler import ProfilingMiddleware
-from app.utils.scheduler import setup_scheduler
+
+# from app.utils.scheduler import setup_scheduler
+
 from app.core.security.rate_limiter import limiter, rate_limit_exceeded_handler
-from app.logging.logger import AppLogger
+from app.logging.logger import logger
 
 from docs.views import router
 
@@ -33,9 +36,7 @@ app = FastAPI(
     redoc_url=None,
 )
 
-setup_scheduler(app)
-
-logger = AppLogger().logger
+# setup_scheduler(app)
 
 app.state.limiter = limiter
 
@@ -48,7 +49,7 @@ app.add_exception_handler(
 middle_wares = [BrotliMiddleware, SlowAPIASGIMiddleware, ProfilingMiddleware]
 
 for middle_ware in middle_wares:
-    if middle_ware == ProfilingMiddleware: # Ignore the profiling middleware for now. Seems to slow down the API
+    if middle_ware == ProfilingMiddleware: # Exclude the profiling middleware for now. Seems to slow down the API
         continue
     app.add_middleware(middle_ware)
 
@@ -59,8 +60,9 @@ async def log_requests(request: Request, call_next):
     duration = time.time() - start_time
     
     logger.info(
+        f"{request.client.host if request.client is not None else "Unknown Host"}:{request.client.port if request.client is not None else "Unknown Port"} "
         f"Method: {request.method} Path: {request.url.path} "
-        f"Status: {response.status_code} Duration: {duration:.2f}s"
+        f"Status: {response.status_code} Duration: {duration * 1000:.0f}ms"
     )
     
     return response
@@ -73,7 +75,9 @@ app.include_router(listing_router, prefix=f"{api_version_str}/listings", tags=["
 app.include_router(reviews_router, prefix=f"{api_version_str}/reviews", tags=["Reviews"])
 app.include_router(notifications_router, prefix=f"{api_version_str}/notifications", tags=["Notifications"])
 app.include_router(chats_router, prefix=f"{api_version_str}/chats", tags=["Chats"])
-app.include_router(ws.router)
+app.include_router(chats.router)
+
+# app.include_router(notifications.router)
 
 @app.get("/")
 async def index():
@@ -85,17 +89,16 @@ async def health_check(db: Session = Depends(get_db)):
 
     num_users = await get_db_stats(db)
 
-    if num_users:
-        data["status"] = "healthy"
-        data["num_of_users"] = num_users
+    data["status"] = "healthy"
+    data["num_of_users"] = num_users
 
     return data
 
 async def get_db_stats(db: Session):
     try:
-        users = db.query(User).all()
+        users = db.query(User).count()
 
-        return len(users) if users else 0
+        return users
     
     except Exception as e:
         print(e)    

@@ -1,6 +1,8 @@
 from typing import Dict, Set
 from fastapi import WebSocket
 
+from app.schemas.notifications import NotificationCreateRequest
+
 class ConnectionManager:
     def __init__(self):
         self.active_connections: Dict[str, Set[WebSocket]] = {}
@@ -20,5 +22,12 @@ class ConnectionManager:
         if user_id in self.active_connections:
             for connection in self.active_connections[user_id]:
                 await connection.send_json(message)
+
+    
+    async def send_notification(self, notification: NotificationCreateRequest, user_id: str):
+        if user_id in self.active_connections:
+            for connection in self.active_connections[user_id]:
+                print(notification.model_dump_json)
+                await connection.send_json(notification.model_dump_json)
 
 manager = ConnectionManager()

@@ -7,6 +7,17 @@ class NotificationType(str, Enum):
     SECURITY = "SECURITY"
     ACCOUNT = "ACCOUNT"
 
+
+class NotificationCreateRequest(BaseModel):
+    type: NotificationType
+    title: str
+    content: str
+
+
+class NotificationCreateResponse(NotificationCreateRequest):
+    id: str
+    
+
 class NotificationListResponse(BaseModel):
     id: str
     type: NotificationType

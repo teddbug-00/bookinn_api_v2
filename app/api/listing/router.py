@@ -1,5 +1,5 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from sqlalchemy.orm import Session 
 
 from app.api.listing.handlers.remove_bookmark import remove_bookmark
@@ -42,9 +42,10 @@ async def get_listing_details(
 async def add_listing(
     listing_data: ListingCreateRequest, 
     user_id: str = Depends(get_current_user_id), 
-    db: Session = Depends(get_db)) -> ListingCreateResponse:
+    db: Session = Depends(get_db),
+    background_tasks: BackgroundTasks = BackgroundTasks()) -> ListingCreateResponse:
 
-    return await create_listing(listing_data, user_id, db)
+    return await create_listing(listing_data, user_id, db, background_tasks)
 
 
 @listing_router.get("/{listing_id}/reviews", response_model=List[ReviewListResponse], status_code=status.HTTP_200_OK)

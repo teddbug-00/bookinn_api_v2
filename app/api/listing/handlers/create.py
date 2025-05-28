@@ -1,13 +1,42 @@
-from fastapi import HTTPException, status
+from fastapi import BackgroundTasks, HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.api.listing.handlers import detail
+from app.core.db import DBSession
+from app.models.activities import Activity, ActivityAction, ActivityType
 from app.models.listing import PropertyListing
 from app.models.profile import UserProfile
 from app.schemas.listing import ListingCreateRequest, ListingCreateResponse
 
 
-async def create_listing(listing_data: ListingCreateRequest, user_id: str, db: Session) -> ListingCreateResponse:
+
+async def _save_activity(user_id: str, listing_id: str):
+
+    db = DBSession()
+
+    listing = db.get(PropertyListing, listing_id)
+
+    if listing:
+        activity = Activity(
+            user_id=user_id,
+            type=ActivityType.LISTING,
+            action=ActivityAction.CREATE,
+            entity_id=listing.id,
+            entity_type="PropertyListing",
+            metadatas={
+                "listing_id": str(listing.id),
+                "listing_name": listing.name,
+                "listing_image_thumbnail": listing.images[0] if len(listing.images) > 0 else None
+            }
+        )
+
+        db.add(activity)
+        db.commit()
+
+async def create_listing(
+        listing_data: ListingCreateRequest, 
+        user_id: str, 
+        db: Session, 
+        background_tasks: BackgroundTasks) -> ListingCreateResponse:
 
     if not db.get(UserProfile, user_id):
         raise HTTPException(
@@ -34,6 +63,12 @@ async def create_listing(listing_data: ListingCreateRequest, user_id: str, db: S
         db.add(new_listing)
         db.commit()
         db.refresh(new_listing)
+
+        background_tasks.add_task(
+            _save_activity,
+            user_id,
+            new_listing.id
+        )
 
         return ListingCreateResponse(
             id=new_listing.id,

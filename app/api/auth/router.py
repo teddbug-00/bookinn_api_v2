@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status, Request
+from fastapi import APIRouter, BackgroundTasks, Depends, status, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
@@ -25,10 +25,11 @@ async def register_user(user_data: UserCreateRequest, db: Session = Depends(get_
 @auth_router.post("/login", response_model=LoginResponse, status_code=status.HTTP_200_OK)
 async def login_user(
     user_credentials: LoginRequest, 
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    background_tasks: BackgroundTasks = BackgroundTasks()
     ) -> LoginResponse:
 
-    return await login(user_credentials, db)
+    return await login(user_credentials, db, background_tasks)
 
 
 @auth_router.post("/token", response_model=LoginResponseBase, status_code=status.HTTP_200_OK)

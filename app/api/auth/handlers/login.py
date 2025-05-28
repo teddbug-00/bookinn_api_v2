@@ -1,17 +1,20 @@
-from fastapi import HTTPException, status
+from fastapi import BackgroundTasks, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from app.core.security.tokens import create_access_token, create_refresh_token
 from app.models import User
+from app.models.notifications import Notification
 from app.schemas.auth import LoginRequest, LoginResponse, LoginResponseBase
+from app.schemas.notifications import NotificationCreateRequest, NotificationType
+from app.websockets.connections.connection_manager import manager
 
 from sqlalchemy.exc import NoResultFound
 
 from app.utils.passwords import verify_password
 
 
-async def login(user_credentials: LoginRequest, db: Session) -> LoginResponse:
+async def login(user_credentials: LoginRequest, db: Session, background_tasks: BackgroundTasks) -> LoginResponse:
 
     try:
 
@@ -25,6 +28,18 @@ async def login(user_credentials: LoginRequest, db: Session) -> LoginResponse:
 
         access_token = await create_access_token(str(user.id))
         refresh_token = await create_refresh_token(str(user.id))
+
+        notification = NotificationCreateRequest(
+            type=NotificationType.ACCOUNT,
+            title="New login detected",
+            content="Your account was recently logged in to. If that wasn't you, consider changing your password"
+        )
+
+        background_tasks.add_task(
+            manager.send_notification,
+            notification,
+            user.id
+        )
 
         return LoginResponse(
             access_token=access_token,
