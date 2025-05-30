@@ -55,20 +55,20 @@ for middle_ware in middle_wares:
         continue
     app.add_middleware(middle_ware) # type:ignore
 
-if settings.DEBUG:
-    @app.middleware("http")
-    async def log_requests(request: Request, call_next):
-        start_time = time.time()
-        response = await call_next(request)
-        duration = time.time() - start_time
-
-        logger.info(
-            f"{request.client.host if request.client is not None else "Unknown Host"}:{request.client.port if request.client is not None else "Unknown Port"} "
-            f"Method: {request.method} Path: {request.url.path} "
-            f"Status: {response.status_code} Duration: {duration * 1000:.0f}ms"
-        )
-
-        return response
+# if settings.DEBUG:
+#     @app.middleware("http")
+#     async def log_requests(request: Request, call_next):
+#         start_time = time.time()
+#         response = await call_next(request)
+#         duration = time.time() - start_time
+#
+#         logger.info(
+#             f"{request.client.host if request.client is not None else "Unknown Host"}:{request.client.port if request.client is not None else "Unknown Port"} "
+#             f"Method: {request.method} Path: {request.url.path} "
+#             f"Status: {response.status_code} Duration: {duration * 1000:.0f}ms"
+#         )
+#
+#         return response
 
 
 app.include_router(router=router, prefix="/api")
