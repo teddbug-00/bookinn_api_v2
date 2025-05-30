@@ -138,8 +138,14 @@ async def get_current_user_id(token: str = Depends(oauth2_scheme)) -> UUID:
     return payload.sub
 
 
+async def create_password_reset_token(user_id: str, expires_delta: Optional[timedelta] = None) -> str:
+    return await _create_token(user_id, "password_reset", expires_delta)
+
+
+
 async def get_current_user_ws(websocket: WebSocket):
-    print("Get websocket called")
+    print("Get user ws ccalled")
+    payload = None
     try:
         token = websocket.query_params.get("token")
         if token is not None:
@@ -147,7 +153,9 @@ async def get_current_user_ws(websocket: WebSocket):
             
             if payload.sub is None:
                 raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION)
+
         return payload.sub
+
     except:
         raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION)
     

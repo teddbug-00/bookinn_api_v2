@@ -31,6 +31,3 @@ class Settings(BaseSettings):
 
 # A one time importable instance
 settings = Settings()
-
-print(settings.DEBUG)
-print(settings.PASSWORD_PEPPER)

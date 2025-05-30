@@ -22,7 +22,7 @@ async def add_bookmark(user_id: str, listing_id: str, db: Session):
 
         db.add(bookmark)
 
-        listing = db.query(PropertyListing).filter(bookmark.listing_id == PropertyListing.id).first()
+        listing = db.query(PropertyListing).filter(listing_id == PropertyListing.id).first()
         if listing:
             listing.total_bookmarks += 1
             listing.update_popularity = True

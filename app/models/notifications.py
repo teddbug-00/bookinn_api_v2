@@ -1,3 +1,5 @@
+import uuid
+
 from .base import Base
 from sqlalchemy import Enum, UUID, Text, String, Boolean, DateTime, func, ForeignKey
 from sqlalchemy.orm import relationship, mapped_column
@@ -10,7 +12,7 @@ class NotificationType(str, Enum):
 class Notification(Base):
     __tablename__ = "notifications"
 
-    id = mapped_column(UUID(as_uuid=True), primary_key=True, index=True)
+    id = mapped_column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True, index=True)
     receiver_id = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     type = mapped_column(Enum(NotificationType.SYSTEM, NotificationType.SECURITY, NotificationType.ACCOUNT, name="notification_type_enum"), index=True)
     title = mapped_column(String(100))

@@ -1,6 +1,8 @@
 from enum import Enum
-
+from uuid import UUID
+from typing import List
 from pydantic import BaseModel
+
 
 class NotificationType(str, Enum):
     SYSTEM = "SYSTEM"
@@ -14,13 +16,13 @@ class NotificationCreateRequest(BaseModel):
     content: str
 
 
-class NotificationCreateResponse(NotificationCreateRequest):
-    id: str
-    
-
 class NotificationListResponse(BaseModel):
-    id: str
+    id: UUID
     type: NotificationType
     title: str
     content: str
     is_read: bool
+
+
+class NotificationsReadRequest(BaseModel):
+    notification_ids: List[UUID]

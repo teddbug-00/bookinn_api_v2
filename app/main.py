@@ -5,7 +5,6 @@ from brotli_asgi import BrotliMiddleware
 from fastapi.staticfiles import StaticFiles
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIASGIMiddleware
-from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.api.auth.router import auth_router
@@ -14,13 +13,13 @@ from app.api.listing.router import listing_router
 from app.api.reviews.router import reviews_router
 from app.api.notifications.router import notifications_router
 from app.api.chats.routes import chats_router
-from app.websockets.routes import chats
+from app.websockets.routes import chats, notifications
 from app.core.config import settings
 from app.core.db import get_db
 from app.models.user import User
 from app.profiling.profiler import ProfilingMiddleware
 
-# from app.utils.scheduler import setup_scheduler
+from app.utils.scheduler import setup_scheduler
 
 from app.core.security.rate_limiter import limiter, rate_limit_exceeded_handler
 from app.logging.logger import logger
@@ -32,11 +31,14 @@ api_version_str = f"/api/{settings.API_VERSION}"
 APP_ROOT = Path(__file__).parent.parent
 
 app = FastAPI(
+    title="BookInn API",
+    description="Backend interface to the BookInn platform",
+    version=settings.API_VERSION,
     docs_url=None,
-    redoc_url=None,
+    redoc_url=None
 )
 
-# setup_scheduler(app)
+setup_scheduler(app)
 
 app.state.limiter = limiter
 
@@ -51,7 +53,7 @@ middle_wares = [BrotliMiddleware, SlowAPIASGIMiddleware, ProfilingMiddleware]
 for middle_ware in middle_wares:
     if middle_ware == ProfilingMiddleware: # Exclude the profiling middleware for now. Seems to slow down the API
         continue
-    app.add_middleware(middle_ware)
+    app.add_middleware(middle_ware) # type:ignore
 
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
@@ -75,9 +77,10 @@ app.include_router(listing_router, prefix=f"{api_version_str}/listings", tags=["
 app.include_router(reviews_router, prefix=f"{api_version_str}/reviews", tags=["Reviews"])
 app.include_router(notifications_router, prefix=f"{api_version_str}/notifications", tags=["Notifications"])
 app.include_router(chats_router, prefix=f"{api_version_str}/chats", tags=["Chats"])
-app.include_router(chats.router)
 
-# app.include_router(notifications.router)
+# Websocket routes
+app.include_router(chats.router)
+app.include_router(notifications.router)
 
 @app.get("/")
 async def index():
@@ -87,21 +90,22 @@ async def index():
 async def health_check(db: Session = Depends(get_db)):
     data = dict()
 
-    num_users = await get_db_stats(db)
+    result = await get_db_stats(db)
 
-    data["status"] = "healthy"
-    data["num_of_users"] = num_users
+    if type(result) is int:
+        data["status"] = "healthy"
+        data["num_of_users"] = result
+    else:
+        data["status"] = "degraded"
+        data["db_error"] = result
 
     return data
 
 async def get_db_stats(db: Session):
     try:
         users = db.query(User).count()
-
         return users
     
     except Exception as e:
-        print(e)    
-
-
- 
+        logger.error(e)
+        return str(e)

@@ -16,7 +16,7 @@ class MessageType(Enum):
 
 router = APIRouter()
 
-@router.websocket("/ws/{chat_id}")
+@router.websocket("/chats/{chat_id}")
 async def websocket_endpoint(
     websocket: WebSocket,
     chat_id: UUID
@@ -38,7 +38,7 @@ async def websocket_endpoint(
         try:
             while True:
                 data = await websocket.receive_text()
-                
+
                 try:
                     event_data = json.loads(data)
                     if not isinstance(event_data, dict) or "type" not in event_data:
@@ -58,6 +58,8 @@ async def websocket_endpoint(
                                 "message": event_data["message"],
                                 "sender_id": str(current_user_id)
                             }
+
+                            print(f"Sending message: {message_out}")
 
                             # Send to both users immediately
                             await asyncio.gather(
@@ -97,6 +99,10 @@ async def websocket_endpoint(
                     continue
 
         except WebSocketDisconnect:
+            message = {
+                "message": "Other user disconnected"
+            }
+            await manager.send_personal_message(message, other_user_id)
             await manager.disconnect(websocket, str(current_user_id))
             
     except Exception:
@@ -104,7 +110,6 @@ async def websocket_endpoint(
 
 
 async def save_message(chat_id: UUID, sender_id: UUID, message: str):
-    """Background task for database operations only"""
     db = DBSession()
     try:
         await chat_crud.create_message(

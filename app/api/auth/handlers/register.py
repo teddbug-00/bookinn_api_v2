@@ -1,14 +1,17 @@
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, BackgroundTasks
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.models.profile import UserProfile
 from app.models.user import User
 from app.schemas.auth import UserCreateRequest, UserCreateResponse
+from app.schemas.notifications import NotificationCreateRequest, NotificationType
+from app.utils.notifications import save_notification
 from app.utils.passwords import passwords
+from app.websockets.connections.connection_manager import manager
 
 
-async def register(user_data: UserCreateRequest, db: Session) -> UserCreateResponse:
+async def register(user_data: UserCreateRequest, db: Session, background_tasks: BackgroundTasks) -> UserCreateResponse:
     try:
 
         if user_data.password != user_data.password_confirm:
@@ -35,6 +38,27 @@ async def register(user_data: UserCreateRequest, db: Session) -> UserCreateRespo
 
         db.add(user)
         db.commit()
+        db.refresh(user)
+
+        notification = NotificationCreateRequest(
+            type=NotificationType.ACCOUNT.value,
+            title="Welcome to BookInn!",
+            content=f"Welcome {user.profile.name}! Your new account has been created successfully."
+        )
+
+        background_tasks.add_task(
+            manager.send_notification,
+            notification,
+            str(user.id)
+        )
+
+        background_tasks.add_task(
+            save_notification,
+            str(user.id),
+            notification.type,
+            notification.title,
+            notification.content
+        )
 
         return UserCreateResponse(
             user_id = user.id,

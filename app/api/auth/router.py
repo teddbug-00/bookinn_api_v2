@@ -1,16 +1,17 @@
 from fastapi import APIRouter, BackgroundTasks, Depends, status, Request
 from fastapi.security import OAuth2PasswordRequestForm
+from pydantic import EmailStr
 from sqlalchemy.orm import Session
 
 from app.api.auth.handlers.refresh import get_new_tokens
 from app.core.db import get_db
 from app.schemas.auth import (
-    LoginResponseBase, 
-    TokenRefreshResponse, 
-    UserCreateRequest, 
-    UserCreateResponse, 
-    LoginResponse, 
-    LoginRequest
+    LoginResponseBase,
+    TokenRefreshResponse,
+    UserCreateRequest,
+    UserCreateResponse,
+    LoginResponse,
+    LoginRequest, PasswordResetRequest
 )
 from .handlers.login import login, login_for_swagger
 from .handlers.register import register
@@ -18,8 +19,8 @@ from .handlers.register import register
 auth_router = APIRouter()
 
 @auth_router.post("/register", response_model=UserCreateResponse, status_code=status.HTTP_201_CREATED)
-async def register_user(user_data: UserCreateRequest, db: Session = Depends(get_db)) -> UserCreateResponse:
-    return await register(user_data, db)
+async def register_user(user_data: UserCreateRequest, db: Session = Depends(get_db), background_tasks: BackgroundTasks = BackgroundTasks()) -> UserCreateResponse:
+    return await register(user_data, db, background_tasks)
 
 
 @auth_router.post("/login", response_model=LoginResponse, status_code=status.HTTP_200_OK)
@@ -50,4 +51,8 @@ async def logout():
     # Before verifying tokens, check for revoked token in the cache
     pass
 
+
+@auth_router.post("/password/reset")
+async def request_password_reset(data: PasswordResetRequest, db: Session = Depends(get_db)):
+    pass
 
