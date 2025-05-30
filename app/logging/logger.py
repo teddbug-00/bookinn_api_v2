@@ -12,22 +12,22 @@ class AppLogger:
         )
         
         # File handler for all logs
-        file_handler = RotatingFileHandler(
-            'logs/general/app.log',
-            maxBytes=1024 * 1024,
-            backupCount=5
-        )
-        file_handler.setFormatter(formatter)
-        file_handler.setLevel(logging.INFO)
-        
-        # Error logs handler
-        error_handler = RotatingFileHandler(
-            'logs/errors/error.log',
-            maxBytes=1024*1024,
-            backupCount=5
-        )
-        error_handler.setFormatter(formatter)
-        error_handler.setLevel(logging.ERROR)
+        # file_handler = RotatingFileHandler(
+        #     'logs/general/app.log',
+        #     maxBytes=1024 * 1024,
+        #     backupCount=5
+        # )
+        # file_handler.setFormatter(formatter)
+        # file_handler.setLevel(logging.INFO)
+        #
+        # # Error logs handler
+        # error_handler = RotatingFileHandler(
+        #     'logs/errors/error.log',
+        #     maxBytes=1024*1024,
+        #     backupCount=5
+        # )
+        # error_handler.setFormatter(formatter)
+        # error_handler.setLevel(logging.ERROR)
 
         # Security-related logs handler
         # security_handler = RotatingFileHandler(
@@ -43,8 +43,8 @@ class AppLogger:
         console_handler.setFormatter(formatter)
         console_handler.setLevel(logging.DEBUG)
         
-        self.logger.addHandler(file_handler)
-        self.logger.addHandler(error_handler)
+        # self.logger.addHandler(file_handler)
+        # self.logger.addHandler(error_handler)
         self.logger.addHandler(console_handler)
         self.logger.setLevel(logging.INFO)
 
