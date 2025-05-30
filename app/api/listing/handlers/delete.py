@@ -34,5 +34,5 @@ async def remove_listing(listing_id: str, user_id: str, db: Session):
 
     except Exception as e:
         db.rollback()
-        logger.error(f"Error deleting listing {str(to_remove.id)[:4] if to_remove is not None else ""}-******* -> {str(e)}")
+        # logger.error(f"Error deleting listing {str(to_remove.id)[:4] if to_remove is not None else ""}-******* -> {str(e)}")
         
