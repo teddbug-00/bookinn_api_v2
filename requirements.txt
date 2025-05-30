@@ -5,3 +5,4 @@ sqlalchemy-cockroachdb
 brotli-asgi
 slowapi
 python-jose
+psycopg2-binary
