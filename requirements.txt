@@ -2,3 +2,4 @@ fastapi[all]
 gunicorn
 sqlalchemy
 sqlalchemy-cockroachdb
+brotli-asgi
