@@ -17,7 +17,6 @@ from app.websockets.routes import chats, notifications
 from app.core.config import settings
 from app.core.db import get_db
 from app.models.user import User
-from app.profiling.profiler import ProfilingMiddleware
 
 from app.utils.scheduler import setup_scheduler
 
@@ -48,11 +47,9 @@ app.add_exception_handler(
     RateLimitExceeded, rate_limit_exceeded_handler
 )
 
-middle_wares = [BrotliMiddleware, SlowAPIASGIMiddleware, ProfilingMiddleware]
+middle_wares = [BrotliMiddleware, SlowAPIASGIMiddleware]
 
 for middle_ware in middle_wares:
-    if middle_ware == ProfilingMiddleware: # Exclude the profiling middleware for now. Seems to slow down the API
-        continue
     app.add_middleware(middle_ware) # type:ignore
 
 # if settings.DEBUG:

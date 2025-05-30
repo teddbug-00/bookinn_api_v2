@@ -3,3 +3,4 @@ gunicorn
 sqlalchemy
 sqlalchemy-cockroachdb
 brotli-asgi
+slowapi
